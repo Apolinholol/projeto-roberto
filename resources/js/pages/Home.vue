@@ -1,9 +1,11 @@
 <template>
-    <Navbar>
-    </Navbar>
+    Home
 </template>
 <script lang="ts" setup>
-import Navbar from './Navbar.vue';
+import App from '@/pages/App.vue';
+defineOptions({ layout: App })
+
+
 
 </script>
 <style scoped>

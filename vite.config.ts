@@ -5,13 +5,12 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [
-        require('flowbite/plugin'),
         laravel({
             input: ['resources/js/app.ts'],
             ssr: 'resources/js/ssr.ts',
             refresh: true,
         }),
-        // tailwindcss(),
+        tailwindcss(),
         vue({
             template: {
                 transformAssetUrls: {
