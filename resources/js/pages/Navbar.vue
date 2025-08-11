@@ -1,6 +1,6 @@
 <template>
     <nav class="flex items-center p-4 text-white"
-    style="background: linear-gradient(to right , #086839 0%, #049f55 100%);">
+    style="background: linear-gradient(to right , #086839 0%, #049f55 100%);height: 80px;">
         <ul class="flex  justify-between w-full mb-0">
             <li  >
                 <a class="d-flex align-items-center gap-2 link-logo">
