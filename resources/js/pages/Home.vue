@@ -16,10 +16,10 @@
     class="w-50 mx-auto mt-10"
     style="max-height: 400px;max-width:800px;">
         <div class="d-flex justify-content-center align-items-center">
-            <img src="@images/VendIFF.png" alt="VendIFF Logo"  />
+            <img src="@images/VendIFF.png" alt="VendIFF Logo"  style="width: 100%;">
         </div>
     </section>
-    <h2 class="questrial-regular text-center pt-3 mb-4">Os melhores produtos para negociar, você encontra aqui !</h2>
+    <h2 class="questrial-regular text-center pt-3 mb-4">Os melhores produtos para negociar, você encontra aqui!</h2>
     <section id="SectionCards" class="d-flex  my-4 gap-4 w-100" style="overflow:hidden;">
 
         <div id="DivOrdenacaoFiltros" class="p-3 d-flex flex-column" style="min-width: 270px; border-right:1px solid rgb(0, 0, 0,0.3)">
