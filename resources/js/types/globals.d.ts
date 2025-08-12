@@ -23,4 +23,13 @@ declare module 'vue' {
         $page: Page;
         $headManager: ReturnType<typeof createHeadManager>;
     }
+    
 }
+
+export interface Anuncio {
+    id: number;
+    name: string;
+    price: number;
+    description?: string;
+}
+

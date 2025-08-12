@@ -70,16 +70,10 @@
 import App from '@/pages/App.vue';
 import imgEntrada from '@images/VendIFF.png';
 import { ref, reactive } from 'vue';
+import { Anuncio } from '@/types/globals';
 
 defineProps<{
-    products: {
-        id: number
-        name: string
-        description: string
-        price: number
-        stock: number
-        is_active: boolean
-    }[]
+    products: Anuncio[];
 }>()
 
 defineOptions({ layout: App })
