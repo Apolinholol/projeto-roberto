@@ -46,16 +46,16 @@
         </div>
       <div id="DivCards" class="flex-grow-1">
         <div class="row g-3 mx-5 gap-5">
-            <div class="col-12 col-xl-3 col-lg-4 col-md-6" v-for="(anuncio, index) in state.lstAnuncios" :key="index">
+            <div class="col-12 col-xl-3 col-lg-4 col-md-6" v-for="product in products" :key="product.id">
             <div class="card" style="width: 250px; margin-bottom: 20px; height: fit-content;">
                 <img :src="imgEntrada" class="card-img-top" alt="...">
                 <div class="card-body">
-                    <h5 class="card-title">{{ anuncio.titulo }}</h5>
-                    <p class="card-text">R${{ anuncio.preco }}</p>
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">R${{ product.price }}</p>
                 </div>
                 <div class="card-footer d-flex justify-content-between align-items-center flex-column">
-                    <p class="card-text">{{ anuncio.categoria }}</p>
-                    <p class="card-text">{{ anuncio.regiao }}</p>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text">Stock: {{ product.stock }}</p>
                 </div>
             </div>
             </div>
@@ -69,47 +69,24 @@
 <script lang="ts" setup>
 import App from '@/pages/App.vue';
 import imgEntrada from '@images/VendIFF.png';
-import { ref, onMounted, reactive } from 'vue';
+import { ref, reactive } from 'vue';
 
+defineProps<{
+    products: {
+        id: number
+        name: string
+        description: string
+        price: number
+        stock: number
+        is_active: boolean
+    }[]
+}>()
 
 defineOptions({ layout: App })
 
 const state = reactive({
     lstCategorias: Array<string>('Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'),
     lstIcones: Array<string>('fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'),
-    lstAnuncios: Array<any>(),
-    anuncio:{
-        titulo: 'Produto 1',
-        descricao: 'Descrição do produto.',
-        preco: 100,
-        categoria: 'Eletrônicos',
-        regiao: 'RJ - Rio de Janeiro',
-        imagem: imgEntrada
-    }
-});
-
-onMounted(() => {
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
-    state.lstAnuncios.push(state.anuncio);
 });
 </script>
 <style scoped>
