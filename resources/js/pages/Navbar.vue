@@ -4,7 +4,7 @@
         <ul class="flex  justify-between w-full mb-0">
             <li>
                 <a href="/" class="d-flex align-items-center gap-2 link-logo">
-                    <img src="@images/logo-vendiff-sem-fundo.png" alt="Logo" class="logo" style="width: 150px; height: auto"/>
+                    <img src="/images/logo-vendiff-sem-fundo.png" alt="Logo" class="logo" style="width: 150px; height: auto"/>
                 </a>
             </li>
             <li class="w-25">

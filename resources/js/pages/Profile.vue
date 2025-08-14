@@ -6,7 +6,8 @@
                     PERFIL DE USUÁRIO
                 </h2>
 
-                <div class="user-info p-3 mb-3 mt-10 d-flex">
+                <!-- Foto do usuário -->
+                <div class="user-info p-3 mb-3 mt-10 d-flex align-items-center" style="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" fill="#01a656"
                         class="bi bi-person-circle" viewBox="0 0 16 16">
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
@@ -14,7 +15,7 @@
                             d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
                     </svg>
 
-                    <div class="user-details" style="border: 1px solid #022413; margin-left: 50px;">
+                    <div class="user-details" style="border: 1px solid #022413; margin-left: 50px; width: 500px;">
                         <h3 class="d-flex align-items-center"
                             style="color: #fff; padding: 10px; background: linear-gradient(to bottom, #00ac59, #0b492a);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
