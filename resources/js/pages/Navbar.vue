@@ -3,7 +3,7 @@
         style="background: linear-gradient(to right , #086839 0%, #049f55 100%);height: 80px;">
         <ul class="flex  justify-between w-full mb-0">
             <li>
-                <a class="d-flex align-items-center gap-2 link-logo">
+                <a href="/" class="d-flex align-items-center gap-2 link-logo">
                     <img src="@images/logo-vendiff-sem-fundo.png" alt="Logo" class="logo" style="width: 150px; height: auto"/>
                 </a>
             </li>
@@ -25,7 +25,7 @@
                             <li class="d-flex justify-content-center">
                                 <p>Olá ,</p>
                             </li>
-                            <li><a class="dropdown-item" href="#">Meus anúncios e perfil</a></li>
+                            <li><a class="dropdown-item" href="/profile">Meus anúncios e perfil</a></li>
                             <li class="d-flex justify-content-center " style="height:30px;">
                                 <button class="btn btn-danger" style="border-radius:5px;height:30px;line-height: 10px;">
                                     <i class="bi bi-door-open"></i>

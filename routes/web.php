@@ -15,6 +15,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/profile', function () {
+    return Inertia::render('Profile');
+})->middleware(['auth'])->name('profile');
+
 Route::get('/dashboard', [HubController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
