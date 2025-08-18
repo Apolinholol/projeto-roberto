@@ -12,30 +12,41 @@ use Illuminate\Http\Request;
 
 
 Route::get('/', function (Request $request) {
-    $query = $request->input('inpProcurar');
+    $query   = $request->input('inpProcurar');
+    $orderBy = $request->input('orderBy');
 
-    $products = Product::query() //Carrega todos os produtos por padrão
+    $products = Product::query()
+        // aplica busca somente se houver pesquisa
         ->when($query, function ($q) use ($query) {
             $q->where('name', 'like', "%{$query}%")
               ->orWhere('description', 'like', "%{$query}%");
-        })
-        ->get();
-    // $products = collect(); // vazio por padrão, porque do contrario carregar automaticamente todos os produtos
-    if ($query) {
-        $products = Product::query()
-            ->where('name', 'like', "%{$query}%")
-            ->orWhere('description', 'like', "%{$query}%")
-            ->get();
+        });
+
+    switch ($orderBy) {
+        case 'preco_desc':
+            $products->orderBy('price', 'desc');
+            break;
+        case 'preco_asc':
+            $products->orderBy('price', 'asc');
+            break;
+        case 'data_desc':
+            $products->orderBy('created_at', 'desc');
+            break;
+        default:
+            $products->orderBy('price', 'asc');
+            break;
     }
+
+    $products = $products->get();
 
     return Inertia::render('Home', [
         'products' => $products,
-        'filters' => [
-            'search' => $query,
+        'filtro' => [
+            'pesquisar' => $query,
+            'orderBy'   => $orderBy,
         ]
     ]);
 })->name('home');
-
 
 
 Route::get('/profile', function () {

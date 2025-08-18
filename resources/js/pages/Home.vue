@@ -26,12 +26,11 @@
             <div id="DivFiltros" >
                <h4>Ordenar por:</h4>
                
-               <select class="form-select mb-3" aria-label="Default select example">
-                    <option disabled selected hidden>Selecione uma ordenação</option>
-                    <option>Maior preço</option>
-                    <option>Menor preço</option>
-                    <option>Data mais atual</option>
-               </select>
+                <select v-model="state.filtro" class="form-select mb-3" aria-label="Default select example">
+                    <option value="preco_desc">Maior preço</option>
+                    <option value="preco_asc" >Menor preço</option>
+                    <option value="data_desc">Data mais atual</option>
+                </select>
            </div>
             <div id="DivFiltros"  >
                <h4>Filtro por categoria:</h4>
@@ -82,22 +81,54 @@
 </template>
 
 <script lang="ts" setup>
-import App from '@/pages/App.vue';
 import imgEntrada from '@images/VendIFF.png';
-import { ref, reactive } from 'vue';
+import App from '@/pages/App.vue';
+import { reactive, watch } from 'vue';
 import { Anuncio } from '@/types/globals';
+import { router } from "@inertiajs/vue3";
 
-defineProps<{
-    products: Anuncio[];
-}>()
 
-defineOptions({ layout: App })
+const props = defineProps<{
+  products: Anuncio[];
+  filtro: {
+    pesquisar?: string;
+    orderBy?: string;
+  };
+}>();
+
+defineOptions({ layout: App });
 
 const state = reactive({
-    lstCategorias: Array<string>('Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'),
-    lstIcones: Array<string>('fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'),
+  filtro: props.filtro?.orderBy || 'preco_asc',
+  categoria: '',
+  lstCategorias: ['Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'],
+  lstIcones: ['fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'],
 });
+
+
+watch(() => state.filtro, (val) => {
+  router.get("/", { 
+    inpProcurar: props.filtro?.pesquisar, 
+    orderBy: val 
+  }, {
+    preserveState: true,
+    replace: true
+  });
+});
+
+
+// watch(() => state.categoria, (val) => {
+//   router.get("/", { 
+//     inpProcurar: props.filtro?.pesquisar, 
+//     orderBy: state.filtro,
+//     categoria: val
+//   }, {
+//     preserveState: true,
+//     replace: true
+//   });
+// });
 </script>
+
 <style scoped>
 p{
     margin-bottom: 0;
