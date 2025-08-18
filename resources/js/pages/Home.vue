@@ -45,22 +45,37 @@
            </div>
         </div>
       <div id="DivCards" class="flex-grow-1">
-        <div class="row g-3 mx-5 gap-5">
-            <div class="col-12 col-xl-3 col-lg-4 col-md-6" v-for="product in products" :key="product.id">
-            <div class="card" style="width: 250px; margin-bottom: 20px; height: fit-content;">
-                <img :src="imgEntrada" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text">R${{ product.price }}</p>
+            <div class="row g-3 mx-5 gap-4">
+                <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="product in products" :key="product.id">
+                
+                <div class="card d-flex flex-column h-100" 
+                    style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;">
+
+                        <img :src="imgEntrada" 
+                        class="card-img-top flex-grow-1" 
+                        style="object-fit:cover; object-position: center;
+                        width: 100%; height: 100%; border-radius: 0;
+                        min-height: 120px;padding-top: 15px;padding-inline: 10px;">
+
+
+      
+                    <div class="card-body p-2 text-center" style="flex: 0 0 auto;">
+                    <h6 class="card-title mb-1 text-truncate" style="font-size: 0.9rem; white-space: normal; word-wrap: break-word;">
+                        {{ product.name }}
+                    </h6>
+                    <p class="card-text mb-1" style="font-size: 0.8rem;">R${{ product.price }}</p>
+                    </div>
+
+              
+                    <div class="card-footer text-center py-1 " style="background-color: #002d17; font-size: 0.75rem;">
+                        <p class="m-0">Cidade - RJ</p>
+                    </div>
                 </div>
-                <div class="card-footer d-flex justify-content-between align-items-center flex-column">
-                    <p class="card-text">{{ product.description }}</p>
-                    <p class="card-text">Stock: {{ product.stock }}</p>
+
                 </div>
             </div>
-            </div>
         </div>
-        </div>
+
 
 
     </section>
@@ -102,6 +117,13 @@ a{
     border-radius: 10px;
     background-color: #002d17;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.2), -2px -2px 5px rgba(255,255,255,0.1);
+}
+
+.card div{
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 </style>

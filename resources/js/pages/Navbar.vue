@@ -9,9 +9,12 @@
             </li>
             <li class="w-25">
                 <div class="input-group " style="margin-top: 10px; ">
-                    <button class="btn bi bi-search" type="button"></button>
-                    <input type="text" class="form-control btn-pesquisar " placeholder="Buscar produto..."
-                        aria-label="Pesquisar">
+                    <button class="btn bi bi-search" type="button" @click="pesquisar"></button>
+                    <input 
+                    @keyup.enter="pesquisar"
+                    v-model="state.inpProcurar"
+                    type="text" class="form-control btn-pesquisar " placeholder="Buscar produto..."
+                    aria-label="Pesquisar">
                 </div>
             </li>
             <li style="margin-right:30px">
@@ -41,6 +44,20 @@
 
 </template>
 <script lang="ts" setup>
+import { router } from '@inertiajs/vue3';
+import { reactive, ref } from 'vue';
+
+const state = reactive({
+    inpProcurar: '',
+});
+
+function pesquisar() {
+  router.get("/", { inpProcurar: state.inpProcurar }, {
+    preserveState: true,
+    replace: true
+  });
+}
+
 </script>
 <style scoped>
 li {
@@ -82,4 +99,5 @@ li {
     align-items: center;
     cursor: pointer;
 }
+
 </style>

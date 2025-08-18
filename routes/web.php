@@ -7,13 +7,36 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
-Route::get('/', function () {
-    $products = Product::all();
+
+
+Route::get('/', function (Request $request) {
+    $query = $request->input('inpProcurar');
+
+    $products = Product::query() //Carrega todos os produtos por padrão
+        ->when($query, function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('description', 'like', "%{$query}%");
+        })
+        ->get();
+    // $products = collect(); // vazio por padrão, porque do contrario carregar automaticamente todos os produtos
+    if ($query) {
+        $products = Product::query()
+            ->where('name', 'like', "%{$query}%")
+            ->orWhere('description', 'like', "%{$query}%")
+            ->get();
+    }
+
     return Inertia::render('Home', [
         'products' => $products,
+        'filters' => [
+            'search' => $query,
+        ]
     ]);
 })->name('home');
+
+
 
 Route::get('/profile', function () {
     return Inertia::render('Profile');
