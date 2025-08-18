@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\HubController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Models\Product;
+use App\Models\Ads;
 use Illuminate\Http\Request;
 
 
@@ -15,7 +15,7 @@ Route::get('/', function (Request $request) {
     $query   = $request->input('inpProcurar');
     $orderBy = $request->input('orderBy');
 
-    $products = Product::query()
+    $ads = Ads::query()
         // aplica busca somente se houver pesquisa
         ->when($query, function ($q) use ($query) {
             $q->where('name', 'like', "%{$query}%")
@@ -24,23 +24,23 @@ Route::get('/', function (Request $request) {
 
     switch ($orderBy) {
         case 'preco_desc':
-            $products->orderBy('price', 'desc');
+            $ads->orderBy('price', 'desc');
             break;
         case 'preco_asc':
-            $products->orderBy('price', 'asc');
+            $ads->orderBy('price', 'asc');
             break;
         case 'data_desc':
-            $products->orderBy('created_at', 'desc');
+            $ads->orderBy('created_at', 'desc');
             break;
         default:
-            $products->orderBy('price', 'asc');
+            $ads->orderBy('price', 'asc');
             break;
     }
 
-    $products = $products->get();
+    $ads = $ads->get();
 
     return Inertia::render('Home', [
-        'products' => $products,
+        'ads' => $ads,
         'filtro' => [
             'pesquisar' => $query,
             'orderBy'   => $orderBy,
@@ -60,8 +60,8 @@ Route::get('/dashboard', [HubController::class, 'index'])
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/hub', [HubController::class, 'index'])->name('hub');
     Route::resource('users', UserController::class)->only(['index', 'update', 'destroy']);
-    Route::resource('products', ProductController::class);
-    Route::resource('categories', CategoryController::class);
+    Route::resource('ads', AdsController::class);
+    Route::resource('categories', CategoryController::class)->except(['show']);
 });
 
 require __DIR__.'/settings.php';

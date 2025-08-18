@@ -14,19 +14,15 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: ShieldCheck,
     },
-    {
-        title: 'Marketplace',
-        href: '/',
-        icon: Store,
-    },
+    
     {
         title: 'Users',
         href: '/admin/users',
         icon: Users,
     },
     {
-        title: 'Products',
-        href: '/admin/products',
+        title: 'Anúncios',
+        href: '/',
         icon: Package,
     },
     {

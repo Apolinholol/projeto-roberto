@@ -45,8 +45,8 @@
         </div>
       <div id="DivCards" class="flex-grow-1">
             <div class="row g-3 mx-5 gap-4">
-                <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="product in products" :key="product.id">
-                
+                <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="ad in ads" :key="ad.id">
+
                 <div class="card d-flex flex-column h-100" 
                     style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;">
 
@@ -60,9 +60,9 @@
       
                     <div class="card-body p-2 text-center" style="flex: 0 0 auto;">
                     <h6 class="card-title mb-1 text-truncate" style="font-size: 0.9rem; white-space: normal; word-wrap: break-word;">
-                        {{ product.name }}
+                        {{ ad.name }}
                     </h6>
-                    <p class="card-text mb-1" style="font-size: 0.8rem;">R${{ product.price }}</p>
+                    <p class="card-text mb-1" style="font-size: 0.8rem;">R${{ ad.price }}</p>
                     </div>
 
               
@@ -89,7 +89,7 @@ import { router } from "@inertiajs/vue3";
 
 
 const props = defineProps<{
-  products: Anuncio[];
+  ads: Anuncio[];
   filtro: {
     pesquisar?: string;
     orderBy?: string;

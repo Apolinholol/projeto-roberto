@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
+
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Ads;
+use App\Models\Category;
 
 class HubController extends Controller
 {
@@ -15,7 +17,8 @@ class HubController extends Controller
         return Inertia::render('Admin/Hub', [
             'stats' => [
                 'users' => User::count(),
-                'products' => Product::count(),
+                'ads' => Ads::count(),
+                'categories' => Category::count()
             ],
         ]);
     }

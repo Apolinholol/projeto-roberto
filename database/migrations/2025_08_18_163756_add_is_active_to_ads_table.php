@@ -10,18 +10,19 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::table('products', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true);
-        });
-    }
+{
+    Schema::table('ads', function (Blueprint $table) {
+        $table->boolean('is_active')->default(true);
+    });
+}
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('ads', function (Blueprint $table) {
             $table->dropColumn('is_active');
         });
     }

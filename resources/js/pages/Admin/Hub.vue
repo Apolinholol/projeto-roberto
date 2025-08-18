@@ -14,7 +14,7 @@ defineProps<{
     <AppLayout title="Admin Hub">
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard title="Total Users" :value="stats.users" icon="Users" />
-            <StatCard title="Total Products" :value="stats.products" icon="Package" />
+            <StatCard title="Total de Anúncios" :value="stats.ads" icon="Package" />
         </div>
     </AppLayout>
 </template>
