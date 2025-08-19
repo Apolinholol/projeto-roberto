@@ -53,6 +53,10 @@ Route::get('/profile', function () {
     return Inertia::render('Profile');
 })->middleware(['auth'])->name('profile');
 
+Route::get('/AdsManager', function () {
+    return Inertia::render('AdsManager');
+})->middleware(['auth'])->name('AdsManager');
+
 Route::get('/dashboard', [HubController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

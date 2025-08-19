@@ -4,23 +4,26 @@
         <ul class="flex  justify-between w-full mb-0">
             <li>
                 <a href="/" class="d-flex align-items-center gap-2 link-logo">
-                    <img src="/images/logo-vendiff-sem-fundo.png" alt="Logo" class="logo" style="width: 150px; height: auto"/>
+                    <img src="/images/logo-vendiff-sem-fundo.png" alt="Logo" class="logo"
+                        style="width: 150px; height: auto" />
                 </a>
             </li>
             <li class="w-25">
                 <div class="input-group " style="margin-top: 10px; ">
                     <button class="btn bi bi-search" type="button" @click="pesquisar"></button>
-                    <input 
-                    @keyup.enter="pesquisar"
-                    v-model="state.inpProcurar"
-                    type="text" class="form-control btn-pesquisar " placeholder="Buscar produto..."
-                    aria-label="Pesquisar">
+                    <input @keyup.enter="pesquisar" v-model="state.inpProcurar" type="text"
+                        class="form-control btn-pesquisar " placeholder="Buscar produto..." aria-label="Pesquisar">
                 </div>
             </li>
             <li style="margin-right:30px">
                 <div class="d-flex gap-5" style="margin-top: 10px;">
+                    <!-- Botão adicionar anúncio -->
+                    <a href="/AdsManager" class="bi bi-plus-circle text-white" style="font-size: 22.7px; margin-top: 1px; text-decoration: none;"></a>
+
+                    <!-- Botão chat -->
                     <button class="bi bi-chat-dots fs-4" type="button"></button>
                     <span class="dropdown">
+                        <!-- Botão perfil -->
                         <button class="bi bi-person-circle fs-4" type="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                         </button>
@@ -52,10 +55,10 @@ const state = reactive({
 });
 
 function pesquisar() {
-  router.get("/", { inpProcurar: state.inpProcurar }, {
-    preserveState: true,
-    replace: true
-  });
+    router.get("/", { inpProcurar: state.inpProcurar }, {
+        preserveState: true,
+        replace: true
+    });
 }
 
 </script>
@@ -99,5 +102,4 @@ li {
     align-items: center;
     cursor: pointer;
 }
-
 </style>
