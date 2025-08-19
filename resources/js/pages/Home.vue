@@ -37,7 +37,7 @@
                
                <select class="form-select mb-3">
                 <option disabled selected hidden>Selecione uma categoria</option>
-                   <option v-for="categoria,index in state.lstCategorias" :key="index">
+                   <option v-for="categoria,index in props.categorias" :key="index">
                           {{categoria}}
                     </option>
                </select>
@@ -83,7 +83,7 @@
 <script lang="ts" setup>
 import imgEntrada from '@images/VendIFF.png';
 import App from '@/pages/App.vue';
-import { reactive, watch } from 'vue';
+import { onMounted, reactive, watch } from 'vue';
 import { Anuncio } from '@/types/globals';
 import { router } from "@inertiajs/vue3";
 
@@ -94,8 +94,13 @@ const props = defineProps<{
     pesquisar?: string;
     orderBy?: string;
   };
-}>();
 
+  categorias: string[];
+
+}>();
+onMounted(() => {
+  console.log(props.categorias);
+});
 defineOptions({ layout: App });
 
 const state = reactive({

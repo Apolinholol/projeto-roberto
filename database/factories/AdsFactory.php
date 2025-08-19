@@ -21,6 +21,9 @@ class AdsFactory extends Factory
             'description' => $this->faker->sentence(),
             'price' => $this->faker->randomFloat(2, 10, 1000),
             'stock' => $this->faker->numberBetween(0, 100),
+            'is_active' => $this->faker->boolean(),
+            'category_id' => \App\Models\Category::inRandomOrder()->first()?->id
+            ?? \App\Models\Category::factory()->create()->id
         ];
     }
 }

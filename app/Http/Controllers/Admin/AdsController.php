@@ -20,7 +20,7 @@ class AdsController extends Controller
                 'price' => $ads->price,
                 'stock' => $ads->stock,
                 'is_active' => $ads->is_active,
-                'category' => $ads->category ? $ads->category->name : null,
+                'category_id' => $ads->category_id
             ];
         }),
     ]);

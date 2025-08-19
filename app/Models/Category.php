@@ -10,7 +10,9 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
+        'description',
+        'is_active'
     ];
     public function ads()
     {
