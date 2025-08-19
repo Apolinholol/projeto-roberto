@@ -7,7 +7,9 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Models\Ads;
+use App\Models\Category;
 use Illuminate\Http\Request;
+
 
 
 
@@ -22,6 +24,7 @@ Route::get('/', function (Request $request) {
               ->orWhere('description', 'like', "%{$query}%");
         });
 
+    $categories = Category::all();
     switch ($orderBy) {
         case 'preco_desc':
             $ads->orderBy('price', 'desc');
@@ -44,7 +47,8 @@ Route::get('/', function (Request $request) {
         'filtro' => [
             'pesquisar' => $query,
             'orderBy'   => $orderBy,
-        ]
+        ],
+        'categorias' => $categories
     ]);
 })->name('home');
 

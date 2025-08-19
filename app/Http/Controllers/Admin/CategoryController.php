@@ -55,7 +55,6 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        // Check if category has ads
         if (Ads::where('category_id', $category->id)->exists()) {
             return redirect()->route('admin.categories.index')
                 ->with('error', 'Não é possível excluir uma categoria que possui anúncios!');
