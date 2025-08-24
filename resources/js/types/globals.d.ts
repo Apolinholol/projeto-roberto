@@ -33,3 +33,10 @@ export interface Anuncio {
     description?: string;
 }
 
+export interface Categoria {
+    id: number;
+    name: string;
+    price: number;
+    description?: string;
+}
+

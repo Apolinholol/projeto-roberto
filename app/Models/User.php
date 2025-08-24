@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // <-- importa aqui
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable  
 {
+    use HasFactory; // <-- adiciona aqui
+
     protected $fillable = [
         'nomeCompleto',
         'nomeUsuario',
@@ -16,7 +19,6 @@ class User extends Authenticatable
         'cpf',
         'admin'
     ];
-
 
     protected $hidden = [
         'senha',

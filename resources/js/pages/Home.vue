@@ -35,9 +35,9 @@
             <div id="DivFiltros"  >
                <h4>Filtro por categoria:</h4>
                
-               <select class="form-select mb-3">
+               <select class="form-select mb-3" v-model="state.categoriaId" aria-label="Default select example">
                 <option disabled selected hidden>Selecione uma categoria</option>
-                   <option v-for="categoria,index in props.categorias" :key="index">
+                   <option v-for="categoria,index in props.categorias" :key="index" :value="categoria.id">
                           {{categoria}}
                     </option>
                </select>
@@ -94,10 +94,8 @@ const props = defineProps<{
     pesquisar?: string;
     orderBy?: string;
   };
-
-  categorias: string[];
-
 }>();
+
 onMounted(() => {
   console.log(props.categorias);
 });
@@ -105,16 +103,17 @@ defineOptions({ layout: App });
 
 const state = reactive({
   filtro: props.filtro?.orderBy || 'preco_asc',
-  categoria: '',
+  categoriaId: 0,
   lstCategorias: ['Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'],
   lstIcones: ['fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'],
 });
 
 
-watch(() => state.filtro, (val) => {
+watch(() => [state.filtro, state.categoriaId], ([newFiltro, newCategoriaId], [oldFiltro, oldCategoriaId]) => {
   router.get("/", { 
     inpProcurar: props.filtro?.pesquisar, 
-    orderBy: val 
+    orderBy: newFiltro,
+    inpCategoriaId: newCategoriaId 
   }, {
     preserveState: true,
     replace: true
