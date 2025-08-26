@@ -15,8 +15,11 @@ class UserController extends Controller
             'users' => User::all()->map(function ($user) {
                 return [
                     'id' => $user->id,
-                    'name' => $user->name,
+                    'nameCompleto' => $user->nameCompleto,
+                    'nomeUsuario' => $user->nomeUsuario,
                     'email' => $user->email,
+                    'telefone' => $user->telefone,
+                    'cpf' => $user->cpf,
                     'is_active' => $user->is_active,
                     'created_at' => $user->created_at->toFormattedDateString(),
                 ];

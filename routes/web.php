@@ -17,14 +17,19 @@ Route::get('/', function (Request $request) {
     $query   = $request->input('inpProcurar');
     $orderBy = $request->input('orderBy');
     $categoryId = $request->input('inpCategoriaId');
-
+    
     $ads = Ads::query()
         // aplica busca somente se houver pesquisa
-        ->when($query, function ($q) use ($query) {
-            $q->where('name', 'like', "%{$query}%")
-              ->orWhere('description', 'like', "%{$query}%")
-              ->andWhere('category_id',$categoryId)
-              ->andWhere('is_active', true);
+        ->when($query, function ($q) use ($query, $categoryId) {
+            $q->where(function ($subQ) use ($query) {
+                $subQ->where('name', 'like', "%{$query}%")
+                     ->orWhere('description', 'like', "%{$query}%");
+            })
+            ->where('is_active', true);
+
+            if ($categoryId > 0) {
+                $q->where('category_id', $categoryId);
+            }
         });
 
     $categories = Category::all();

@@ -17,6 +17,7 @@ class User extends Authenticatable
         'senha',
         'telefone',
         'cpf',
+        'is_active',
         'admin'
     ];
 

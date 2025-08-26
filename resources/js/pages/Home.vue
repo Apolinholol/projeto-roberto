@@ -35,10 +35,11 @@
             <div id="DivFiltros"  >
                <h4>Filtro por categoria:</h4>
                
-               <select class="form-select mb-3" v-model="state.categoriaId" aria-label="Default select example">
-                <option disabled selected hidden>Selecione uma categoria</option>
+               <select
+               class="form-select mb-3" v-model="state.categoriaId" aria-label="Default select example">
+                <option value="0" disabled selected hidden>Selecione uma categoria</option>
                    <option v-for="categoria,index in props.categorias" :key="index" :value="categoria.id">
-                          {{categoria}}
+                          {{categoria.name}}
                     </option>
                </select>
            </div>
@@ -84,7 +85,7 @@
 import imgEntrada from '@images/VendIFF.png';
 import App from '@/pages/App.vue';
 import { onMounted, reactive, watch } from 'vue';
-import { Anuncio } from '@/types/globals';
+import { Anuncio, Categoria } from '@/types/globals';
 import { router } from "@inertiajs/vue3";
 
 
@@ -93,11 +94,12 @@ const props = defineProps<{
   filtro: {
     pesquisar?: string;
     orderBy?: string;
+
   };
+  categorias: Categoria[];
 }>();
 
 onMounted(() => {
-  console.log(props.categorias);
 });
 defineOptions({ layout: App });
 
@@ -113,7 +115,7 @@ watch(() => [state.filtro, state.categoriaId], ([newFiltro, newCategoriaId], [ol
   router.get("/", { 
     inpProcurar: props.filtro?.pesquisar, 
     orderBy: newFiltro,
-    inpCategoriaId: newCategoriaId 
+    inpCategoriaId: state.categoriaId
   }, {
     preserveState: true,
     replace: true
