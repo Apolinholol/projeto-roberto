@@ -95,9 +95,20 @@
 
                 </div>
 
-                <!-- Aqui você vai implementar o conteúdo do perfil e gerenciamento de anúncios -->
-                <div class="mt-4">
-                    <!-- Espaço para seu conteúdo personalizado -->
+                <div class="user-info p-3 mb-3 mt-10 d-flex flex-column align-items-center justify-content-center"
+                    style="border: 1px solid #022413;">
+                    <h3 class="d-flex align-items-center justify-content-center">HISTÓRICO DE ANÚNCIOS</h3>
+
+                    <div class="w-100">
+                        <p class="justify-content-center mt-1 mb-3 text-center">Veja abaixo todos os seus anúncios. Edite, tive, desative ou apenas visualize cada um deles com
+                            facilidade.
+                        </p>
+                        
+                        <!-- Mensagem quando não há anúncios -->
+                        <div v-if="!temAnuncios" class="text-center">
+                            <p class="text-muted mb-0">Nenhum anúncio cadastrado.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,10 +117,12 @@
 
 <script lang="ts" setup>
 import App from '@/pages/App.vue';
+import { ref } from 'vue';
 
 defineOptions({ layout: App });
 
-// Aqui você pode adicionar suas props, composables, etc.
+// Variável para controlar se existem anúncios (será implementado no futuro)
+const temAnuncios = ref(false);
 </script>
 
 <style scoped>
