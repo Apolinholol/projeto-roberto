@@ -26,7 +26,7 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthBase title="Create an account" description="Enter your details below to create your account">
+    <AuthBase title="Crie sua conta" description="Entre com seus dados para começar" style="background-color:rgb(240, 241, 240)">
         <Head title="Register" />
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">
@@ -92,13 +92,15 @@ const submit = () => {
                     <InputError :message="form.errors.senha_confirmation" />
                 </div>
 
-                <Button type="submit" class="mt-2 w-full" tabindex="5" :disabled="form.processing">
+                <Button type="submit" class="mt-2 w-full" tabindex="5" :disabled="form.processing"
+                style="background-color: rgb(0, 45, 23)!important;
+                color: white;">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Criar conta
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground">
+            <div class="text-center text-sm text-muted-foreground" style="color: black;">
                 Já tem uma conta?
                 <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="6">Faça login</TextLink>
             </div>

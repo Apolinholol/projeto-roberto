@@ -18,18 +18,18 @@ Route::get('/', function (Request $request) {
     $orderBy = $request->input('orderBy');
     $categoryId = $request->input('inpCategoriaId');
     
-    $ads = Ads::query()
+        $ads = Ads::query()
+        ->where('is_active', true)
         // aplica busca somente se houver pesquisa
-        ->when($query, function ($q) use ($query, $categoryId) {
+        ->when($query, function ($q) use ($query) {
             $q->where(function ($subQ) use ($query) {
                 $subQ->where('name', 'like', "%{$query}%")
                      ->orWhere('description', 'like', "%{$query}%");
-            })
-            ->where('is_active', true);
-
-            if ($categoryId > 0) {
-                $q->where('category_id', $categoryId);
-            }
+            });
+        })
+        // aplica categoria somente se > 0
+        ->when($categoryId > 0, function ($q) use ($categoryId) {
+            $q->where('category_id', $categoryId);
         });
 
     $categories = Category::all();
@@ -50,6 +50,8 @@ Route::get('/', function (Request $request) {
     }
 
     $ads = $ads->get();
+    $user = Auth::user();
+
 
     return Inertia::render('Home', [
         'ads' => $ads,
@@ -57,7 +59,8 @@ Route::get('/', function (Request $request) {
             'pesquisar' => $query,
             'orderBy'   => $orderBy,
         ],
-        'categorias' => $categories
+        'categorias' => $categories,
+        'usuario' => $user ? $user : null,
     ]);
 })->name('home');
 

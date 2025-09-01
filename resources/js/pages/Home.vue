@@ -27,6 +27,7 @@
                <h4>Ordenar por:</h4>
                
                 <select v-model="state.filtro" class="form-select mb-3" aria-label="Default select example">
+                    <option :value="null" selected >Selecione uma opção</option>
                     <option value="preco_desc">Maior preço</option>
                     <option value="preco_asc" >Menor preço</option>
                     <option value="data_desc">Data mais atual</option>
@@ -37,7 +38,7 @@
                
                <select
                class="form-select mb-3" v-model="state.categoriaId" aria-label="Default select example">
-                <option value="0" disabled selected hidden>Selecione uma categoria</option>
+                <option :value="null"  selected >Selecione uma categoria</option>
                    <option v-for="categoria,index in props.categorias" :key="index" :value="categoria.id">
                           {{categoria.name}}
                     </option>
@@ -103,9 +104,11 @@ onMounted(() => {
 });
 defineOptions({ layout: App });
 
+
+
 const state = reactive({
-  filtro: props.filtro?.orderBy || 'preco_asc',
-  categoriaId: 0,
+  filtro: props.filtro?.orderBy || null,
+  categoriaId: 0 || null,
   lstCategorias: ['Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'],
   lstIcones: ['fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'],
 });
@@ -123,16 +126,6 @@ watch(() => [state.filtro, state.categoriaId], ([newFiltro, newCategoriaId], [ol
 });
 
 
-// watch(() => state.categoria, (val) => {
-//   router.get("/", { 
-//     inpProcurar: props.filtro?.pesquisar, 
-//     orderBy: state.filtro,
-//     categoria: val
-//   }, {
-//     preserveState: true,
-//     replace: true
-//   });
-// });
 </script>
 
 <style scoped>
