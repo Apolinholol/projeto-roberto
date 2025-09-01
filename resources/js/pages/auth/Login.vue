@@ -16,17 +16,14 @@ defineProps<{
 
 const form = useForm({
     email: '',
-    password: '', // deve bater com LoginRequest
+    senha: '',
     remember: false,
 });
 
 const submit = () => {
-  console.log("Enviando:", form.data()); // 👈 debug
-  form.post(route("login"), {
-    preserveState: false,
-    onFinish: () => form.reset("password"),
-    onError: (errors) => console.log("Erros:", errors),
-  });
+    form.post(route('login'), {
+        onFinish: () => form.reset('senha'),
+    });
 };
 </script>
 
@@ -57,7 +54,11 @@ const submit = () => {
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
+<<<<<<< Updated upstream
                         <Label for="senha">Senha</Label>
+=======
+                        <Label for="senha">Password</Label>
+>>>>>>> Stashed changes
                         <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
                             Esqueceu a senha?
                         </TextLink>
@@ -68,10 +69,10 @@ const submit = () => {
                         required
                         :tabindex="2"
                         autocomplete="current-password"
-                        v-model="form.password"
-                        placeholder="password"
+                        v-model="form.senha"
+                        placeholder="Senha"
                     />
-                    <InputError :message="form.errors.password" />
+                    <InputError :message="form.errors.senha" />
                 </div>
 
                 <div class="flex items-center justify-between">

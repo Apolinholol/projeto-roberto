@@ -6,9 +6,10 @@ use App\Http\Controllers\Admin\HubController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Models\Ads;
+use App\Models\Ad;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -18,18 +19,17 @@ Route::get('/', function (Request $request) {
     $orderBy = $request->input('orderBy');
     $categoryId = $request->input('inpCategoriaId');
     
-        $ads = Ads::query()
-        ->where('is_active', true)
+    $ads = Ad::query()
         // aplica busca somente se houver pesquisa
-        ->when($query, function ($q) use ($query) {
+        ->when($query, function ($q) use ($query, $categoryId) {
             $q->where(function ($subQ) use ($query) {
                 $subQ->where('name', 'like', "%{$query}%")
                      ->orWhere('description', 'like', "%{$query}%");
             });
-        })
-        // aplica categoria somente se > 0
-        ->when($categoryId > 0, function ($q) use ($categoryId) {
-            $q->where('category_id', $categoryId);
+
+            if ($categoryId > 0) {
+                $q->where('category_id', $categoryId);
+            }
         });
 
     $categories = Category::all();
@@ -70,8 +70,15 @@ Route::get('/profile', function () {
 })->middleware(['auth'])->name('profile');
 
 Route::get('/AdsManager', function () {
-    return Inertia::render('AdsManager');
+    $categories = Category::all();
+    return Inertia::render('AdsManager', [
+        'categorias' => $categories
+    ]);
 })->middleware(['auth'])->name('AdsManager');
+
+Route::post('/ads', [AdsController::class, 'store'])
+    ->middleware(['auth'])
+    ->name('ads.store');
 
 Route::get('/dashboard', [HubController::class, 'index'])
     ->middleware(['auth', 'verified'])

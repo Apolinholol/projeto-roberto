@@ -19,29 +19,25 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'], // frontend continua enviando "password"
+            'email' => ['required', 'string', 'email'],
+            'senha' => ['required', 'string'],
         ];
     }
 
-public function authenticate(): void
-{
-    $this->ensureIsNotRateLimited();
+    public function authenticate(): void
+    {
+        $this->ensureIsNotRateLimited();
 
-    $user = \App\Models\User::where('email', $this->email)->first();
+        if (! Auth::attempt(['email' => $this->email, 'password' => $this->senha], $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
 
-   
-    if (! Auth::attempt([
-        'email' => $this->email,
-        'password' => $this->password,
-    ], $this->boolean('remember'))) {
-        throw ValidationException::withMessages([
-            'email' => trans('auth.failed'),
-        ]);
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
     }
-
-    RateLimiter::clear($this->throttleKey());
-}
 
     public function ensureIsNotRateLimited(): void
     {
