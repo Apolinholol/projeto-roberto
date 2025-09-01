@@ -21,7 +21,7 @@
                     <a href="/AdsManager" class="bi bi-plus-circle text-white" style="font-size: 22.7px; margin-top: 1px; text-decoration: none;"></a>
 
                     <!-- Botão chat -->
-                    <button class="bi bi-chat-dots fs-4" type="button"></button>
+                    <a href="/chat" class="bi bi-chat-dots fs-4 text-white" style="font-size: 22.7px; margin-top: 1px; text-decoration: none;"></a>
                     <span class="dropdown">
                         <!-- Botão perfil -->
                         <button class="bi bi-person-circle fs-4" type="button" data-bs-toggle="dropdown"

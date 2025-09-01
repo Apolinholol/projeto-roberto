@@ -2,14 +2,17 @@
 interface Props {
     title: string;
     description?: string;
+    h2Class?: string; // New prop
 }
 
-defineProps<Props>();
+withDefaults(defineProps<Props>(), {
+    h2Class: '', // Default value for h2Class
+});
 </script>
 
 <template>
-    <div class="mb-8 space-y-0.5">
-        <h2 class="text-xl font-semibold tracking-tight">{{ title }}</h2>
+    <div class="space-y-0.5">
+        <h2 :class="[h2Class, 'w-100', 'm-0']">{{ title }}</h2>
         <p v-if="description" class="text-sm text-muted-foreground">
             {{ description }}
         </p>

@@ -36,6 +36,18 @@ class User extends Authenticatable
         return $this->hasMany(Anuncio::class, 'user_id');
     }
 
+    public function chatsAsBuyer(): HasMany
+    {
+        return $this->hasMany(Chat::class, 'id_comprador');
+    }
+
+    public function chatsAsSeller(): HasMany
+    {
+        return $this->hasMany(Chat::class, 'id_vendedor');
+    }
+
+    
+
     public function setSenhaAttribute($value)
     {
         $this->attributes['senha'] = bcrypt($value);

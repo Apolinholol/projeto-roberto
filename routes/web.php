@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\HubController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\ChatController;
 use App\Models\Ads;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -69,6 +70,11 @@ Route::get('/profile', function () {
 Route::get('/AdsManager', function () {
     return Inertia::render('AdsManager');
 })->middleware(['auth'])->name('AdsManager');
+
+Route::get('/chat', [ChatController::class, 'index'])->middleware(['auth'])->name('chat');
+
+Route::post('/chat/message', [ChatController::class, 'storeMessage'])->middleware(['auth'])->name('chat.message.store');
+Route::get('/chat/{chat}/messages', [ChatController::class, 'getMessages'])->middleware(['auth'])->name('chat.messages.get');
 
 Route::get('/dashboard', [HubController::class, 'index'])
     ->middleware(['auth', 'verified'])
