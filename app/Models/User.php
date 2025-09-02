@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -36,7 +37,6 @@ class User extends Authenticatable
         return $this->hasMany(Anuncio::class, 'user_id');
     }
 
-<<<<<<< HEAD
     public function chatsAsBuyer(): HasMany
     {
         return $this->hasMany(Chat::class, 'id_comprador');
@@ -49,9 +49,6 @@ class User extends Authenticatable
 
     
 
-=======
-    // Hash automático ao criar ou alterar senha
->>>>>>> a81e91d40a9aadedd93de562d41d333b8cd742b8
     public function setSenhaAttribute($value)
 {
     if (!empty($value) && !Hash::needsRehash($value)) {

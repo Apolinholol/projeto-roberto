@@ -6,12 +6,9 @@ use App\Http\Controllers\Admin\HubController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\CategoryController;
-<<<<<<< HEAD
 use App\Http\Controllers\ChatController;
 use App\Models\Ads;
-=======
 use App\Models\Ad;
->>>>>>> a81e91d40a9aadedd93de562d41d333b8cd742b8
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -81,16 +78,13 @@ Route::get('/AdsManager', function () {
     ]);
 })->middleware(['auth'])->name('AdsManager');
 
-<<<<<<< HEAD
 Route::get('/chat', [ChatController::class, 'index'])->middleware(['auth'])->name('chat');
 
 Route::post('/chat/message', [ChatController::class, 'storeMessage'])->middleware(['auth'])->name('chat.message.store');
 Route::get('/chat/{chat}/messages', [ChatController::class, 'getMessages'])->middleware(['auth'])->name('chat.messages.get');
-=======
-Route::post('/ads', [AdsController::class, 'store'])
+Route::post('/ad', [AdsController::class, 'store'])
     ->middleware(['auth'])
     ->name('ads.store');
->>>>>>> a81e91d40a9aadedd93de562d41d333b8cd742b8
 
 Route::get('/dashboard', [HubController::class, 'index'])
     ->middleware(['auth', 'verified'])
