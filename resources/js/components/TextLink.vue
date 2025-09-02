@@ -14,6 +14,7 @@ defineProps<Props>();
 
 <template>
     <Link
+        style="color:white"
         :href="href"
         :tabindex="tabindex"
         :method="method"

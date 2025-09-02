@@ -29,10 +29,11 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li class="d-flex justify-content-center">
-                                <p>Olá ,</p>
+                                    <p v-if="usuario">Olá, {{ props.usuario?.nomeCompleto }}</p>
+                                    <p v-else>Bem-vindo, visitante!</p>
                             </li>
-                            <li><a class="dropdown-item" href="/profile">Meus anúncios e perfil</a></li>
-                            <li class="d-flex justify-content-center " style="height:30px;">
+                            <li><a class="dropdown-item" href="/profile" v-if="usuario" >Meus anúncios e perfil</a></li>
+                            <li class="d-flex justify-content-center " style="height:30px;" @click="logout" v-if="usuario">
                                 <button class="btn btn-danger" style="border-radius:5px;height:30px;line-height: 10px;">
                                     <i class="bi bi-door-open"></i>
                                     Logout
@@ -48,11 +49,16 @@
 </template>
 <script lang="ts" setup>
 import { router } from '@inertiajs/vue3';
-import { reactive, ref } from 'vue';
+import { reactive, ref, defineProps } from 'vue';
 
 const state = reactive({
     inpProcurar: '',
 });
+
+const props = defineProps<{
+  usuario?: any;
+}>();
+console.log(props.usuario);
 
 function pesquisar() {
     router.get("/", { inpProcurar: state.inpProcurar }, {
@@ -60,6 +66,10 @@ function pesquisar() {
         replace: true
     });
 }
+
+const logout = () => {
+    router.post(route('logout'));
+};
 
 </script>
 <style scoped>
@@ -87,7 +97,9 @@ li {
     border-top-right-radius: 6px;
     border-bottom-right-radius: 6px;
 }
-
+p{
+    margin:0;
+}
 
 .btn-pesquisar:focus {
     outline: none;
