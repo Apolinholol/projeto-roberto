@@ -1,6 +1,6 @@
 <template>
    <div style="display: flex; flex-direction: column; min-height: 100vh;">
-    <Navbar />
+    <Navbar :usuario="$page.props.usuario" />
     <main style="flex: 1;">
       <slot />
     </main>

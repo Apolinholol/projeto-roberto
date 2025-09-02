@@ -7,26 +7,23 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\ChatController;
-use App\Models\Ads;
+use App\Models\Ad;
 use App\Models\Category;
 use Illuminate\Http\Request;
-
-
-
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function (Request $request) {
     $query   = $request->input('inpProcurar');
     $orderBy = $request->input('orderBy');
     $categoryId = $request->input('inpCategoriaId');
-    
-    $ads = Ads::query()
+
+    $ads = Ad::query()
         // aplica busca somente se houver pesquisa
         ->when($query, function ($q) use ($query, $categoryId) {
             $q->where(function ($subQ) use ($query) {
                 $subQ->where('name', 'like', "%{$query}%")
                      ->orWhere('description', 'like', "%{$query}%");
-            })
-            ->where('is_active', true);
+            });
 
             if ($categoryId > 0) {
                 $q->where('category_id', $categoryId);
@@ -51,6 +48,8 @@ Route::get('/', function (Request $request) {
     }
 
     $ads = $ads->get();
+    $user = Auth::user();
+
 
     return Inertia::render('Home', [
         'ads' => $ads,
@@ -58,7 +57,8 @@ Route::get('/', function (Request $request) {
             'pesquisar' => $query,
             'orderBy'   => $orderBy,
         ],
-        'categorias' => $categories
+        'categorias' => $categories,
+        'usuario' => $user ? $user : null,
     ]);
 })->name('home');
 
@@ -68,13 +68,20 @@ Route::get('/profile', function () {
 })->middleware(['auth'])->name('profile');
 
 Route::get('/AdsManager', function () {
-    return Inertia::render('AdsManager');
+    $categories = Category::all();
+    return Inertia::render('AdsManager', [
+        'categorias' => $categories
+    ]);
 })->middleware(['auth'])->name('AdsManager');
 
 Route::get('/chat', [ChatController::class, 'index'])->middleware(['auth'])->name('chat');
 
 Route::post('/chat/message', [ChatController::class, 'storeMessage'])->middleware(['auth'])->name('chat.message.store');
 Route::get('/chat/{chat}/messages', [ChatController::class, 'getMessages'])->middleware(['auth'])->name('chat.messages.get');
+
+Route::post('/ads', [AdsController::class, 'store'])
+    ->middleware(['auth'])
+    ->name('ads.store');
 
 Route::get('/dashboard', [HubController::class, 'index'])
     ->middleware(['auth', 'verified'])
