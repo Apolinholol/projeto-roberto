@@ -1,5 +1,5 @@
 <template>
-   <div style="display: flex; flex-direction: column; min-height: 100vh;">
+  <div style="display: flex; flex-direction: column; min-height: 100vh;">
     <Navbar :usuario="$page.props.usuario" />
     <main style="flex: 1;">
       <slot />
@@ -12,8 +12,8 @@ import Navbar from './Navbar.vue';
 import Footer from './Footer.vue';
 </script>
 <style>
-input::placeholder {
-    color: white!important;
-}
-
+  input::placeholder,
+  textarea::placeholder {
+    color: #676A6D !important;
+  }
 </style>

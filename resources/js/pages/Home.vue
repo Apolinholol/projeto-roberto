@@ -52,7 +52,7 @@
                 <div class="card d-flex flex-column h-100" 
                     style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;">
 
-                        <img :src="imgEntrada" 
+                        <img :src="getPrimeiraImagem(ad)" 
                         class="card-img-top flex-grow-1" 
                         style="object-fit:cover; object-position: center;
                         width: 100%; height: 100%; border-radius: 0;
@@ -112,6 +112,22 @@ const state = reactive({
   lstCategorias: ['Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'],
   lstIcones: ['fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'],
 });
+
+// Função para obter a primeira imagem do anúncio
+const getPrimeiraImagem = (ad: any) => {
+  if (ad.image_path) {
+    try {
+      const imagens = JSON.parse(ad.image_path);
+      if (imagens && imagens.length > 0) {
+        return `/storage/${imagens[0]}`;
+      }
+    } catch (e) {
+      console.error('Erro ao fazer parse das imagens:', e);
+    }
+  }
+  // Retorna imagem padrão se não houver imagem
+  return imgEntrada;
+};
 
 
 watch(() => [state.filtro, state.categoriaId], ([newFiltro, newCategoriaId], [oldFiltro, oldCategoriaId]) => {

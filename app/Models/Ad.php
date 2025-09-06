@@ -18,7 +18,6 @@ class Ad extends Model
         'stock',
         'category_id',
         'image_path',
-        'image_paths',
         'is_active',
         'user_id',
     ];

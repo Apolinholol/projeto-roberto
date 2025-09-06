@@ -137,11 +137,9 @@
                                     accept="image/*"
                                     :class="{ 'is-invalid': errors.fotos }"
                                     multiple
-                                    required
+                                    
                                 >
-                                <div v-if="errors.fotos" class="invalid-feedback">
-                                    {{ errors.fotos }}
-                                </div>
+                                
                                 <div class="form-text">
                                     Formatos aceitos: JPG, PNG, WebP. Tamanho máximo: 5MB por arquivo. Máximo: 10 fotos
                                 </div>
@@ -283,7 +281,7 @@ const form = reactive({
     categoria_id: '',
     preco: '',
     estoque: 1,
-    fotos: [] as File[]
+    fotos: [] as File[],
 });
 
 // Formulário nova categoria
@@ -309,10 +307,10 @@ const handleFileUpload = (event: Event) => {
     const files = target.files;
     
     if (!files || files.length === 0) return;
-    
-    // Verificar se não excede o limite de 10 fotos
-    if (previewFotos.value.length + files.length > 10) {
-        alert(`Você pode adicionar no máximo 10 fotos. Atualmente você tem ${previewFotos.value.length} foto(s).`);
+
+    // Verificar se não excede o limite de 5 fotos
+    if (previewFotos.value.length + files.length > 5) {
+        alert(`Você pode adicionar no máximo 5 fotos. Atualmente você tem ${previewFotos.value.length} foto(s).`);
         return;
     }
     
@@ -329,14 +327,14 @@ const handleFileUpload = (event: Event) => {
             return;
         }
         
-        // Verificar se a foto já não foi adicionada
+        // Verificar se a foto já não foi adicionado
         const jaExiste = previewFotos.value.some(preview => preview.name === file.name);
         if (jaExiste) {
             alert(`O arquivo ${file.name} já foi adicionado.`);
             return;
         }
         
-        // Adicionar à lista de arquivos
+        // Adicionar à lista de arquivos - CORREÇÃO AQUI
         form.fotos.push(file);
         
         // Criar preview
@@ -446,21 +444,8 @@ const salvarAnuncio = async () => {
     salvando.value = true;
     
     try {
-        // Criar FormData para envio com arquivo
-        const formData = new FormData();
-        formData.append('name', form.titulo);
-        formData.append('description', form.descricao);
-        formData.append('category_id', form.categoria_id);
-        formData.append('price', form.preco);
-        formData.append('stock', form.estoque.toString());
-        
-        // Adicionar todas as fotos
-        form.fotos.forEach((foto, index) => {
-            formData.append(`fotos[${index}]`, foto);
-        });
-        
         // Enviar para o backend usando Inertia
-        router.post('/ads', formData, {
+        router.post('/ad', form, {
             onSuccess: () => {
                 alert('Anúncio criado com sucesso!');
                 limparFormulario();
@@ -505,5 +490,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
+    
 </style>

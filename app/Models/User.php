@@ -48,7 +48,6 @@ class User extends Authenticatable
     }
 
 
-
     // Hash automático ao criar ou alterar senha
     public function setSenhaAttribute($value)
     {

@@ -54,11 +54,7 @@ const submit = () => {
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
-<<<<<<< Updated upstream
                         <Label for="senha">Senha</Label>
-=======
-                        <Label for="senha">Password</Label>
->>>>>>> Stashed changes
                         <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
                             Esqueceu a senha?
                         </TextLink>
