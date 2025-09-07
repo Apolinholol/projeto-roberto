@@ -46,4 +46,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Chat::class, 'id_vendedor');
     }
+
+    // Hash automático ao criar ou alterar senha
+    public function setPasswordAttribute($value)
+    {
+        if (!empty($value) && !Hash::needsRehash($value)) {
+            $this->attributes['password'] = bcrypt($value);
+        } else {
+            $this->attributes['password'] = $value; // já é hash
+        }
+    }
+
+    // Diz ao Laravel que o campo de senha é "password" (padrão)
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
 }

@@ -4,12 +4,6 @@
         <ul class="d-flex w-100 gap-2  flex-wrap justify-content-between align-items-center mx-2 me-5">
             <strong class="ps-3 pt-2">CATEGORIAS:</strong>
             <li class="list-item text-center" v-for="(categoria, index) in state.lstCategorias" :key="index">
-                <a :href="route('categoria', { categoria: categoria })"
-                    class="d-flex gap-2 justify-content-center align-items-end ">
-                    <i :class="state.lstIcones[index] + ' pb-1 d-flex align-items-end'"></i>
-                    <p>{{ categoria }}</p>
-                </a>
-            <li class="list-item text-center" v-for="(categoria, index) in state.lstCategorias" :key="index">
                 <a class="d-flex gap-2 justify-content-center align-items-end ">
                     <i :class="state.lstIcones[index] + ' pb-1 d-flex align-items-end'"></i>
                     <p>{{ categoria }}</p>
@@ -62,17 +56,18 @@
                 </select>
             </div>
         </div>
+
         <div id="DivCards" class="flex-grow-1">
             <div class="row g-3 mx-5 gap-4">
                 <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="ad in ads" :key="ad.id">
 
                     <div class="card d-flex flex-column h-100"
-                        style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden; cursor: pointer;"
-                        @click="verDetalhesAnuncio(ad)">
+                        style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;">
 
                         <img :src="getPrimeiraImagem(ad)" class="card-img-top flex-grow-1" style="object-fit:cover; object-position: center;
-                        width: 100%; height: 100%; border-radius: 0;
-                        min-height: 120px;padding-top: 15px;padding-inline: 10px;">
+                        width: 100%; height: 100%;
+                        min-height: 120px;padding-top: 15px;padding-inline: 10px;
+                        max-height: 200px;" @error="handleImageError">
 
 
 
@@ -131,35 +126,50 @@ const state = reactive({
     lstIcones: ['fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'],
 });
 
-// Função para obter a primeira imagem do anúncio
-const getPrimeiraImagem = (ad: any) => {
-    if (ad.image_path) {
-        try {
-            // Se image_path já é um array (cast do Laravel)
-            if (Array.isArray(ad.image_path)) {
-                if (ad.image_path.length > 0) {
-                    return `/storage/${ad.image_path[0]}`;
-                }
-            } else {
-                // Se é string JSON, fazer parse
-                const imagens = JSON.parse(ad.image_path);
-                if (imagens && imagens.length > 0) {
-                    return `/storage/${imagens[0]}`;
-                }
-            }
-        } catch (e) {
-            console.error('Erro ao processar imagens:', e);
-        }
+// Função para testar toasts
+const testToasts = () => {
+    console.log('Testando toasts...');
+    if ((window as any).showToast) {
+        (window as any).showToast('Toast de sucesso teste!', 'success');
+        setTimeout(() => (window as any).showToast('Toast de erro teste!', 'error'), 1000);
+        setTimeout(() => (window as any).showToast('Toast de warning teste!', 'warning'), 2000);
+        setTimeout(() => (window as any).showToast('Toast de info teste!', 'info'), 3000);
+    } else {
+        console.error('showToast não está disponível!');
+        alert('showToast function not available');
     }
-    // Retorna imagem padrão se não houver imagem
-    return imgEntrada;
+};
+
+// Função para testar modal de confirmação
+const testConfirm = () => {
+    (window as any).showConfirm?.({
+        title: 'Teste de Confirmação',
+        message: 'Esta é uma mensagem de teste do modal de confirmação.\n\nVocê gostaria de continuar?',
+        confirmText: 'Sim, continuar',
+        cancelText: 'Cancelar',
+        onConfirm: () => {
+            (window as any).showToast?.('Você confirmou a ação!', 'success');
+        },
+        onCancel: () => {
+            (window as any).showToast?.('Ação cancelada.', 'info');
+        }
+    });
 };
 
 // Função para ver detalhes do anúncio
 const verDetalhesAnuncio = (ad: any) => {
-    // Por enquanto, apenas mostra um alert com as informações
+    // Por enquanto, apenas mostra um toast com as informações
     // Futuramente pode ser implementada uma página de detalhes
-    alert(`Anúncio: ${ad.name}\nPreço: R$ ${ad.price}\nDescrição: ${ad.description || 'Sem descrição'}`);
+    const detalhes = `Anúncio: ${ad.name}\nPreço: R$ ${ad.price}\nDescrição: ${ad.description || 'Sem descrição'}`;
+    (window as any).showToast?.(detalhes, 'info', 8000);
+};
+
+// Função para lidar com erro de carregamento de imagem
+const handleImageError = (event: Event) => {
+    const target = event.target as HTMLImageElement;
+    if (target) {
+        target.src = imgEntrada;
+    }
 };
 
 

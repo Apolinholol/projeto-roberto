@@ -29,7 +29,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li class="d-flex justify-content-center">
-                                    <p v-if="usuario">Olá, {{ props.usuario?.nomeCompleto }}</p>
+                                    <p v-if="usuario">Olá, {{ usuario?.nomeCompleto }}</p>
                                     <p v-else>Bem-vindo, visitante!</p>
                             </li>
                             <li><a class="dropdown-item" href="/profile" v-if="usuario" >Meus anúncios e perfil</a></li>
@@ -48,17 +48,18 @@
 
 </template>
 <script lang="ts" setup>
-import { router } from '@inertiajs/vue3';
-import { reactive, ref, defineProps } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+import { reactive, computed } from 'vue';
 
 const state = reactive({
     inpProcurar: '',
 });
 
-const props = defineProps<{
-  usuario?: any;
-}>();
-console.log(props.usuario);
+// Usar dados globais do Inertia
+const page = usePage();
+const usuario = computed(() => page.props.auth?.user);
+
+console.log('Usuario do auth:', usuario.value);
 
 function pesquisar() {
     router.get("/", { inpProcurar: state.inpProcurar }, {

@@ -37,7 +37,7 @@
                                     d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8.96q.04-.245.04-.5C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1 1 0 0 1 1 12z" />
                             </svg>
                             <p class="user-complete-name d-flex mb-0 ml-2 align-items-center">
-                                João Pedro Rocha
+                                {{ usuario?.nomeCompleto || 'Nome não informado' }}
                             </p>
                         </div>
 
@@ -49,7 +49,7 @@
                                     d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
                             </svg>
                             <p class="user-email d-flex mb-0 ml-2 align-items-center">
-                                joao@email.com
+                                {{ usuario?.email || 'Email não informado' }}
                             </p>
                         </div>
 
@@ -61,8 +61,7 @@
                                     d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z" />
                             </svg>
                             <p class="user-phone d-flex mb-0 ml-2 align-items-center">
-                                (21) 99999-9999
-
+                                {{ usuario?.telefone || 'Telefone não informado' }}
                             </p>
                         </div>
 
@@ -97,16 +96,88 @@
 
                 <div class="user-info p-3 mb-3 mt-10 d-flex flex-column align-items-center justify-content-center"
                     style="border: 1px solid #022413;">
-                    <h3 class="d-flex align-items-center justify-content-center">HISTÓRICO DE ANÚNCIOS</h3>
+                    <h3 class="d-flex align-items-center justify-content-center" style="padding-top: 13px;">HISTÓRICO DE
+                        ANÚNCIOS</h3>
 
                     <div class="w-100">
-                        <p class="justify-content-center mt-1 mb-3 text-center">Veja abaixo todos os seus anúncios. Edite, tive, desative ou apenas visualize cada um deles com
+                        <p class="justify-content-center mt-1 mb-3 text-center">Veja abaixo todos os seus anúncios.
+                            Edite, ative, desative ou apenas visualize cada um deles com
                             facilidade.
                         </p>
-                        
+
                         <!-- Mensagem quando não há anúncios -->
-                        <div v-if="!temAnuncios" class="text-center">
-                            <p class="text-muted mb-0">Nenhum anúncio cadastrado.</p>
+                        <div v-if="!anuncios || anuncios.length === 0" class="text-center"
+                            style="padding-bottom: 13px;">
+                            <p class="text-muted mb-0">Nenhum anúncio cadastrado.<br>
+                                <a href="/AdsManager" style="color: #0b492a; font-weight: 700;">Clique aqui para criar o
+                                    seu primeiro anúncio.</a>
+                            </p>
+                        </div>
+
+                        <!-- Grid de anúncios -->
+                        <div v-else class="row g-3 justify-content-center">
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-3" v-for="ad in anuncios" :key="ad.id">
+                                <div class="card d-flex flex-column h-100"
+                                    style="width: 220px; height: 300px; background-color:#049f55; border-radius: 18px; overflow: hidden; margin: 0 auto;">
+
+                                    <img :src="getPrimeiraImagem(ad)" class="card-img-top" style="object-fit:cover; object-position: center;
+                                        width: 100%; height: 170px; border-radius: 0;
+                                        padding-top: 15px; padding-inline: 10px;" @error="handleImageError">
+
+                                    <div class="card-body p-2" style="flex: 0 0 auto; height: 70px;">
+                                        <!-- Layout em duas colunas -->
+                                        <div class="d-flex h-100 align-items-center">
+                                            <!-- Coluna esquerda: Nome e Preço -->
+                                            <div class="flex-fill text-center"
+                                                style="border-right: 1px solid #ffffff40; padding-right: 8px;">
+                                                <h6 class="card-title mb-1"
+                                                    style="font-size: 0.8rem; line-height: 1.0; color: white; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;">
+                                                    {{ ad.name }}
+                                                </h6>
+                                                <p class="card-text mb-0"
+                                                    style="font-size: 0.75rem; color: white; font-weight: bold;">
+                                                    R$ {{ ad.price }}
+                                                </p>
+                                            </div>
+
+                                            <!-- Coluna direita: Outras informações -->
+                                            <div class="flex-fill text-center" style="padding-left: 8px;">
+                                                <p class="mb-1"
+                                                    style="color: #ccc; line-height: 1.1; font-size: 0.7rem;">
+                                                    Estoque: {{ ad.stock }}
+                                                </p>
+                                                <p class="mb-1"
+                                                    style="color: #ccc; line-height: 1.1; font-size: 0.7rem;">
+                                                    {{ ad.is_active ? 'Ativo' : 'Inativo' }}
+                                                </p>
+                                                <p class="mb-0"
+                                                    style="color: #ccc; line-height: 1.1; font-size: 0.65rem;">
+                                                    {{ formatarData(ad.created_at) }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer d-flex justify-content-center gap-1 py-1"
+                                        style="background-color: #002d17; font-size: 0.75rem;">
+                                        <button class="btn btn-sm btn-warning"
+                                            style="font-size: 0.7rem; padding: 2px 6px;" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm"
+                                            :class="ad.is_active ? 'btn-secondary' : 'btn-success'"
+                                            style="font-size: 0.7rem; padding: 2px 6px;"
+                                            :title="ad.is_active ? 'Desativar' : 'Ativar'" @click="toggleStatus(ad)">
+                                            <i :class="ad.is_active ? 'bi bi-pause' : 'bi bi-play'"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger"
+                                            style="font-size: 0.7rem; padding: 2px 6px;" title="Excluir"
+                                            @click="deleteAd(ad)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -116,13 +187,132 @@
 </template>
 
 <script lang="ts" setup>
+import imgEntrada from '@images/VendIFF.png';
 import App from '@/pages/App.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 
 defineOptions({ layout: App });
 
-// Variável para controlar se existem anúncios (será implementado no futuro)
-const temAnuncios = ref(false);
+// Obter dados do usuário logado
+const page = usePage();
+const usuario = computed(() => page.props.auth?.user);
+
+// Props vindas do backend
+const props = defineProps<{
+    anuncios?: Array<{
+        id: number;
+        name: string;
+        description?: string;
+        price: string;
+        stock: number;
+        image_path?: string | Array<string>;
+        is_active: boolean;
+        created_at: string;
+    }>;
+}>();
+
+// Função para obter a primeira imagem do anúncio (reutilizada da Home)
+const getPrimeiraImagem = (ad: any) => {
+    console.log('Processando imagem para anúncio:', ad.name, 'image_path:', ad.image_path);
+
+    if (ad.image_path) {
+        try {
+            // Se image_path já é um array (cast do Laravel)
+            if (Array.isArray(ad.image_path)) {
+                if (ad.image_path.length > 0) {
+                    const imagePath = `/storage/${ad.image_path[0]}`;
+                    console.log('Imagem encontrada (array):', imagePath);
+                    return imagePath;
+                }
+            } else if (typeof ad.image_path === 'string') {
+                // Se é string JSON, fazer parse
+                const imagens = JSON.parse(ad.image_path);
+                if (imagens && Array.isArray(imagens) && imagens.length > 0) {
+                    const imagePath = `/storage/${imagens[0]}`;
+                    console.log('Imagem encontrada (string):', imagePath);
+                    return imagePath;
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao processar imagens:', e);
+        }
+    }
+
+    console.log('Usando imagem padrão para:', ad.name);
+    // Retorna imagem padrão se não houver imagem
+    return imgEntrada;
+};
+
+// Função para lidar com erro de carregamento de imagem
+const handleImageError = (event: Event) => {
+    const target = event.target as HTMLImageElement;
+    if (target) {
+        target.src = imgEntrada;
+    }
+};
+
+// Função para alterar status do anúncio (ativar/desativar)
+const toggleStatus = async (ad: any) => {
+    try {
+        router.patch(`/my-ads/${ad.id}`, {
+            is_active: !ad.is_active
+        }, {
+            onSuccess: () => {
+                ad.is_active = !ad.is_active; // Atualizar localmente
+                (window as any).showToast?.(`Anúncio ${ad.is_active ? 'ativado' : 'desativado'} com sucesso!`, 'success');
+            },
+            onError: () => {
+                (window as any).showToast?.('Erro ao alterar status do anúncio.', 'error');
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao alterar status:', error);
+        (window as any).showToast?.('Erro ao alterar status do anúncio.', 'error');
+    }
+};
+
+// Função para excluir anúncio
+const deleteAd = async (ad: any) => {
+    (window as any).showConfirm?.({
+        title: 'Excluir Anúncio',
+        message: `Tem certeza que deseja excluir o anúncio "${ad.name}"?\n\nEsta ação não pode ser desfeita.`,
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+            try {
+                router.delete(`/my-ads/${ad.id}`, {
+                    onSuccess: () => {
+                        (window as any).showToast?.('Anúncio excluído com sucesso!', 'success');
+                        // Recarregar a página para atualizar a lista
+                        router.reload();
+                    },
+                    onError: () => {
+                        (window as any).showToast?.('Erro ao excluir anúncio.', 'error');
+                    }
+                });
+            } catch (error) {
+                console.error('Erro ao excluir anúncio:', error);
+                (window as any).showToast?.('Erro ao excluir anúncio.', 'error');
+            }
+        }
+    });
+};
+
+// Função para formatar data em formato brasileiro
+const formatarData = (dataString: string) => {
+    try {
+        const data = new Date(dataString);
+        return data.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    } catch (error) {
+        console.error('Erro ao formatar data:', error);
+        return 'Data inválida';
+    }
+};
 </script>
 
 <style scoped>

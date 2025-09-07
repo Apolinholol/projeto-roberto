@@ -308,9 +308,9 @@ const handleFileUpload = (event: Event) => {
     
     if (!files || files.length === 0) return;
 
-    // Verificar se não excede o limite de 5 fotos
-    if (previewFotos.value.length + files.length > 5) {
-        alert(`Você pode adicionar no máximo 5 fotos. Atualmente você tem ${previewFotos.value.length} foto(s).`);
+    // Verificar se não excede o limite de 10 fotos
+    if (previewFotos.value.length + files.length > 10) {
+        (window as any).showToast?.(`Você pode adicionar no máximo 10 fotos. Atualmente você tem ${previewFotos.value.length} foto(s).`, 'warning');
         target.value = ''; // Limpar o input
         return;
     }
@@ -318,20 +318,20 @@ const handleFileUpload = (event: Event) => {
     Array.from(files).forEach(file => {
         // Validar tipo de arquivo
         if (!file.type.startsWith('image/')) {
-            alert(`O arquivo ${file.name} não é uma imagem válida.`);
+            (window as any).showToast?.(`O arquivo ${file.name} não é uma imagem válida.`, 'error');
             return;
         }
         
         // Validar tamanho (5MB)
         if (file.size > 5 * 1024 * 1024) {
-            alert(`O arquivo ${file.name} deve ter no máximo 5MB.`);
+            (window as any).showToast?.(`O arquivo ${file.name} deve ter no máximo 5MB.`, 'error');
             return;
         }
         
         // Verificar se a foto já não foi adicionado
         const jaExiste = previewFotos.value.some(preview => preview.name === file.name);
         if (jaExiste) {
-            alert(`O arquivo ${file.name} já foi adicionado.`);
+            (window as any).showToast?.(`O arquivo ${file.name} já foi adicionado.`, 'warning');
             return;
         }
         
@@ -373,7 +373,7 @@ const removerTodasFotos = () => {
 // Função para adicionar nova categoria
 const adicionarCategoria = async () => {
     if (!novaCategoria.nome.trim()) {
-        alert('Por favor, digite o nome da categoria.');
+        (window as any).showToast?.('Por favor, digite o nome da categoria.', 'warning');
         return;
     }
     
@@ -392,9 +392,9 @@ const adicionarCategoria = async () => {
         novaCategoria.nome = '';
         mostrarModalCategoria.value = false;
         
-        alert('Categoria adicionada com sucesso!');
+        (window as any).showToast?.('Categoria adicionada com sucesso!', 'success');
     } catch (error) {
-        alert('Erro ao adicionar categoria. Tente novamente.');
+        (window as any).showToast?.('Erro ao adicionar categoria. Tente novamente.', 'error');
     }
 };
 
@@ -461,22 +461,22 @@ const salvarAnuncio = async () => {
         console.log('Enviando formulário com', form.fotos.length, 'fotos');
         
         // Enviar para o backend usando Inertia
-        router.post('/ad', formData, {
+        router.post('/ads', formData, {
             forceFormData: true,
             onSuccess: () => {
-                alert('Anúncio criado com sucesso!');
+                (window as any).showToast?.('Anúncio criado com sucesso!', 'success');
                 limparFormulario();
             },
             onError: (erros) => {
                 console.error('Erros de validação:', erros);
                 errors.value = erros;
-                alert('Erro ao salvar anúncio. Verifique os campos.');
+                (window as any).showToast?.('Erro ao salvar anúncio. Verifique os campos.', 'error');
             }
         });
         
     } catch (error) {
         console.error('Erro ao salvar anúncio:', error);
-        alert('Erro ao salvar anúncio. Tente novamente.');
+        (window as any).showToast?.('Erro ao salvar anúncio. Tente novamente.', 'error');
     } finally {
         salvando.value = false;
     }

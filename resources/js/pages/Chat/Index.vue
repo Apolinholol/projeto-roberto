@@ -213,24 +213,30 @@ const toggleNegotiationStatus = async () => {
 
   const currentStatus = selectedChat.value.finalizado;
   const routeName = currentStatus ? 'chat.reactivate' : 'chat.finalize';
-  const confirmationMessage = currentStatus
+  const title = currentStatus ? 'Reativar Negociação' : 'Finalizar Negociação';
+  const message = currentStatus
     ? 'Tem certeza que deseja reativar esta negociação?'
-    : 'Tem certeza que deseja finalizar esta negociação? Isso desativará o envio de mensagens.';
+    : 'Tem certeza que deseja finalizar esta negociação?\n\nIsso desativará o envio de mensagens.';
+  const confirmText = currentStatus ? 'Reativar' : 'Finalizar';
 
-  if (!confirm(confirmationMessage)) {
-    return;
-  }
-
-  try {
-    const response = await axios.post(route(routeName, selectedChat.value.id));
-    if (response.data.chat) {
-      selectedChat.value.finalizado = response.data.chat.finalizado;
-      fetchMessages(); // Re-fetch messages to show the system message
+  (window as any).showConfirm?.({
+    title,
+    message,
+    confirmText,
+    cancelText: 'Cancelar',
+    onConfirm: async () => {
+      try {
+        const response = await axios.post(route(routeName, selectedChat.value.id));
+        if (response.data.chat) {
+          selectedChat.value.finalizado = response.data.chat.finalizado;
+          fetchMessages(); // Re-fetch messages to show the system message
+        }
+      } catch (error) {
+        console.error('Error toggling negotiation status:', error);
+        (window as any).showToast?.('Ocorreu um erro ao tentar alterar o status da negociação.', 'error');
+      }
     }
-  } catch (error) {
-    console.error('Error toggling negotiation status:', error);
-    alert('Ocorreu um erro ao tentar alterar o status da negociação.');
-  }
+  });
 };
 </script>
 

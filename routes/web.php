@@ -57,13 +57,19 @@ Route::get('/', function (Request $request) {
             'orderBy'   => $orderBy,
         ],
         'categorias' => $categories,
-        'usuario' => $user ? $user : null,
     ]);
 })->name('home');
 
 
 Route::get('/profile', function () {
-    return Inertia::render('Profile');
+    $user = Auth::user();
+    $userAds = Ad::where('user_id', $user->id)
+                 ->orderBy('created_at', 'desc')
+                 ->get();
+    
+    return Inertia::render('Profile', [
+        'anuncios' => $userAds
+    ]);
 })->middleware(['auth'])->name('profile');
 
 Route::get('/AdsManager', function () {
@@ -123,7 +129,6 @@ Route::get('/categoria/{categoria}', function (Request $request, $categoria) {
             'orderBy' => $orderBy,
         ],
         'categorias' => $categories,
-        'usuario' => $user ? $user : null,
     ]);
 })->name('categoria');
 
@@ -136,6 +141,12 @@ Route::post('/chat/{chat}/reactivate', [ChatController::class, 'reactivateNegoti
 Route::post('/ads', [AdsController::class, 'store'])
     ->middleware(['auth'])
     ->name('ads.store');
+
+// Rotas para usuários gerenciarem seus próprios anúncios
+Route::middleware(['auth'])->group(function () {
+    Route::patch('/my-ads/{ad}', [AdsController::class, 'updateMyAd'])->name('my-ads.update');
+    Route::delete('/my-ads/{ad}', [AdsController::class, 'destroyMyAd'])->name('my-ads.destroy');
+});
 
 Route::get('/dashboard', [HubController::class, 'index'])
     ->middleware(['auth', 'verified'])

@@ -45,7 +45,7 @@ class AdsController extends Controller
         'preco' => 'required|numeric|min:0.01',
         'estoque' => 'required|integer|min:1',
         'categoria_id' => 'required|exists:categories,id',
-        'fotos' => 'required|array|min:1|max:5',
+        'fotos' => 'required|array|min:1|max:10',
         'fotos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB por foto
     ], [
         'titulo.required' => 'O título é obrigatório.',
@@ -59,7 +59,7 @@ class AdsController extends Controller
         'categoria_id.exists' => 'Categoria inválida.',
         'fotos.required' => 'Pelo menos uma foto é obrigatória.',
         'fotos.min' => 'Pelo menos uma foto é obrigatória.',
-        'fotos.max' => 'Máximo de 5 fotos permitidas.',
+        'fotos.max' => 'Máximo de 10 fotos permitidas.',
         'fotos.*.image' => 'Todos os arquivos devem ser imagens.',
         'fotos.*.mimes' => 'As imagens devem ser do tipo: jpeg, png, jpg, gif ou webp.',
         'fotos.*.max' => 'Cada imagem deve ter no máximo 5MB.',
@@ -125,5 +125,37 @@ class AdsController extends Controller
         $ad->delete();
 
         return redirect('/admin/ads');
+    }
+
+    // Métodos para usuários gerenciarem seus próprios anúncios
+    public function updateMyAd(Request $request, Ad $ad)
+    {
+        // Verificar se o anúncio pertence ao usuário logado
+        if ($ad->user_id !== Auth::id()) {
+            abort(403, 'Não autorizado');
+        }
+
+        // Permitir apenas atualização de status
+        $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        $ad->update([
+            'is_active' => $request->is_active
+        ]);
+
+        return redirect()->back()->with('success', 'Status do anúncio atualizado com sucesso!');
+    }
+
+    public function destroyMyAd(Ad $ad)
+    {
+        // Verificar se o anúncio pertence ao usuário logado
+        if ($ad->user_id !== Auth::id()) {
+            abort(403, 'Não autorizado');
+        }
+
+        $ad->delete();
+
+        return redirect()->back()->with('success', 'Anúncio excluído com sucesso!');
     }
 }
