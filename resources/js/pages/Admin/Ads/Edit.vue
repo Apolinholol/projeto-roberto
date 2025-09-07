@@ -3,17 +3,9 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { useForm } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import InputError from '@/components/InputError.vue'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
 
 const props = defineProps<{
     ads: {
@@ -60,7 +52,7 @@ function submit() {
 
                         <div>
                             <Label for="description">Descrição</Label>
-                            <Textarea id="description" v-model="form.description" class="mt-1 block w-full" />
+                            <textarea id="description" v-model="form.description" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" rows="3"></textarea>
                             <InputError :message="form.errors.description" class="mt-2" />
                         </div>
 
