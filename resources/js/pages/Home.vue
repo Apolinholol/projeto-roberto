@@ -164,6 +164,33 @@ const verDetalhesAnuncio = (ad: any) => {
     (window as any).showToast?.(detalhes, 'info', 8000);
 };
 
+// Função para obter a primeira imagem do anúncio
+const getPrimeiraImagem = (ad: any) => {
+    if (ad.image_path) {
+        try {
+            // Se image_path já é um array (cast do Laravel)
+            if (Array.isArray(ad.image_path)) {
+                if (ad.image_path.length > 0) {
+                    const imagePath = `/storage/${ad.image_path[0]}`;
+                    return imagePath;
+                }
+            } else if (typeof ad.image_path === 'string') {
+                // Se é string JSON, fazer parse
+                const imagens = JSON.parse(ad.image_path);
+                if (imagens && Array.isArray(imagens) && imagens.length > 0) {
+                    const imagePath = `/storage/${imagens[0]}`;
+                    return imagePath;
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao processar imagens:', e);
+        }
+    }
+
+    // Retorna imagem padrão se não houver imagem
+    return imgEntrada;
+};
+
 // Função para lidar com erro de carregamento de imagem
 const handleImageError = (event: Event) => {
     const target = event.target as HTMLImageElement;
