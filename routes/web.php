@@ -79,6 +79,9 @@ Route::get('/chat', [ChatController::class, 'index'])->middleware(['auth'])->nam
 Route::post('/chat/message', [ChatController::class, 'storeMessage'])->middleware(['auth'])->name('chat.message.store');
 Route::get('/chat/{chat}/messages', [ChatController::class, 'getMessages'])->middleware(['auth'])->name('chat.messages.get');
 
+Route::post('/chat/{chat}/finalize', [ChatController::class, 'finalizeNegotiation'])->middleware(['auth'])->name('chat.finalize');
+Route::post('/chat/{chat}/reactivate', [ChatController::class, 'reactivateNegotiation'])->middleware(['auth'])->name('chat.reactivate');
+
 Route::post('/ads', [AdsController::class, 'store'])
     ->middleware(['auth'])
     ->name('ads.store');

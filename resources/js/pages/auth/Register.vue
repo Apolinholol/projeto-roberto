@@ -12,15 +12,15 @@ const form = useForm({
    nomeCompleto: '',
    nomeUsuario: '',
    email: '',
-   senha: '',
-   senha_confirmation: '',
+   password: '',
+   password_confirmation: '',
    telefone: '',
    cpf: '',
 });
 
 const submit = () => {
     form.post(route('register'), {
-        onFinish: () => form.reset('senha', 'cpf'),
+        onFinish: () => form.reset('password', 'cpf'),
     });
 };
 </script>
@@ -65,31 +65,31 @@ const submit = () => {
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="senha">Senha</Label>
+                    <Label for="password">Senha</Label>
                     <Input
-                        id="senha"
+                        id="password"
                         type="password"
                         required
                         :tabindex="6"
                         autocomplete="new-password"
-                        v-model="form.senha"
+                        v-model="form.password"
                         placeholder="Password"
                     />
-                    <InputError :message="form.errors.senha" />
+                    <InputError :message="form.errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="senha_confirmation">Confirmar Senha</Label>
+                    <Label for="password_confirmation">Confirmar Senha</Label>
                     <Input
-                        id="senha_confirmation"
+                        id="password_confirmation"
                         type="password"
                         required
                         :tabindex="7"
                         autocomplete="new-password"
-                        v-model="form.senha_confirmation"
+                        v-model="form.password_confirmation"
                         placeholder="Confirm password"
                     />
-                    <InputError :message="form.errors.senha_confirmation" />
+                    <InputError :message="form.errors.password_confirmation" />
                 </div>
 
                 <Button type="submit" class="mt-2 w-full" tabindex="8" :disabled="form.processing"

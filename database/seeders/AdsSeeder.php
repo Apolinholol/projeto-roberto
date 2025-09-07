@@ -26,7 +26,7 @@ class AdsSeeder extends Seeder
                 'nomeCompleto' => 'Usuário Teste',
                 'nomeUsuario' => 'teste_usuario',
                 'email' => 'teste@vendiff.com',
-                'senha' => bcrypt('password'),
+                'password' => bcrypt('password'),
                 'cpf' => '11111111111',
                 'telefone' => '11999999999',
             ]);
