@@ -1,78 +1,95 @@
 <template>
-    <section id="SectionCategorias" 
-    style="background-color:#cff8e4;"
-    class="d-flex flex-wrap justify-content-start my-0 align-items-center  ">
-    <ul class="d-flex w-100 gap-2  flex-wrap justify-content-between align-items-center mx-2 me-5">
+    <section id="SectionCategorias" style="background-color:#cff8e4;"
+        class="d-flex flex-wrap justify-content-start my-0 align-items-center  ">
+        <ul class="d-flex w-100 gap-2  flex-wrap justify-content-between align-items-center mx-2 me-5">
             <strong class="ps-3 pt-2">CATEGORIAS:</strong>
-            <li class="list-item text-center" v-for="(categoria,index) in state.lstCategorias"
-            :key="index">
-            <a :href="route('categoria', { categoria: categoria })" class="d-flex gap-2 justify-content-center align-items-end ">
-              <i :class="state.lstIcones[index] + ' pb-1 d-flex align-items-end'"></i> <p>{{categoria}}</p>
-            </a>
+            <li class="list-item text-center" v-for="(categoria, index) in state.lstCategorias" :key="index">
+                <a :href="route('categoria', { categoria: categoria })"
+                    class="d-flex gap-2 justify-content-center align-items-end ">
+                    <i :class="state.lstIcones[index] + ' pb-1 d-flex align-items-end'"></i>
+                    <p>{{ categoria }}</p>
+                </a>
+            <li class="list-item text-center" v-for="(categoria, index) in state.lstCategorias" :key="index">
+                <a class="d-flex gap-2 justify-content-center align-items-end ">
+                    <i :class="state.lstIcones[index] + ' pb-1 d-flex align-items-end'"></i>
+                    <p>{{ categoria }}</p>
+                </a>
             </li>
         </ul>
     </section>
-    <section id="SectionCarrousel"
-    class="w-50 mx-auto mt-10"
-    style="max-height: 400px;max-width:800px;">
-        <div class="d-flex justify-content-center align-items-center">
-            <img src="@images/VendIFF.png" alt="VendIFF Logo"  style="width: 100%;">
+
+    <div class="container-fluid px-3 px-sm-4 px-md-5 my-4 mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-11 col-md-10 col-lg-9 col-xl-8 col-xxl-7">
+                <div
+                    style="background-color: #002D17; padding: 25px 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                    <h2 class="text-center mb-4" style="color: #fff;">SEJA BEM-VINDO(A) AO VENDIFF!</h2>
+                    <p class="text-center" style="color: #fff; max-width: 780px; margin: 0 auto;">
+                        Aqui você compra e vende com facilidade, segurança e agilidade.
+                        Navegue pelas categorias, filtre os anúncios e encontre o que precisa, de carros a eletrônicos,
+                        está tudo
+                        aqui!
+                        <br><br>
+                        Comece agora mesmo a explorar ou anunciar!
+                    </p>
+                </div>
+            </div>
         </div>
-    </section>
-    <h2 class="questrial-regular text-center pt-3 mb-4">Os melhores produtos para negociar, você encontra aqui!</h2>
+    </div>
+
     <section id="SectionCards" class="d-flex  my-4 gap-4 w-100" style="overflow:hidden;">
 
-        <div id="DivOrdenacaoFiltros" class="p-3 d-flex flex-column" style="min-width: 270px; border-right:1px solid rgb(0, 0, 0,0.3)">
-            <div id="DivFiltros" >
-               <h4>Ordenar por:</h4>
-               
+        <div id="DivOrdenacaoFiltros" class="p-3 d-flex flex-column"
+            style="min-width: 270px; border-right:1px solid rgb(0, 0, 0,0.3)">
+            <div id="DivFiltros">
+                <h4>Ordenar por:</h4>
+
                 <select v-model="state.filtro" class="form-select mb-3" aria-label="Default select example">
-                    <option :value="null" selected >Selecione uma opção</option>
+                    <option :value="null" selected>Selecione uma opção</option>
                     <option value="preco_desc">Maior preço</option>
-                    <option value="preco_asc" >Menor preço</option>
+                    <option value="preco_asc">Menor preço</option>
                     <option value="data_desc">Data mais atual</option>
                 </select>
-           </div>
-            <div id="DivFiltros"  >
-               <h4>Filtro por categoria:</h4>
-               
-               <select
-               class="form-select mb-3" v-model="state.categoriaId" aria-label="Default select example">
-                <option :value="null"  selected >Selecione uma categoria</option>
-                   <option v-for="categoria,index in props.categorias" :key="index" :value="categoria.id">
-                          {{categoria.name}}
+            </div>
+            <div id="DivFiltros">
+                <h4>Filtro por categoria:</h4>
+
+                <select class="form-select mb-3" v-model="state.categoriaId" aria-label="Default select example">
+                    <option :value="null" selected>Selecione uma categoria</option>
+                    <option v-for="categoria, index in props.categorias" :key="index" :value="categoria.id">
+                        {{ categoria.name }}
                     </option>
-               </select>
-           </div>
+                </select>
+            </div>
         </div>
-      <div id="DivCards" class="flex-grow-1">
+        <div id="DivCards" class="flex-grow-1">
             <div class="row g-3 mx-5 gap-4">
                 <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="ad in ads" :key="ad.id">
 
-                <div class="card d-flex flex-column h-100" 
-                    style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden; cursor: pointer;"
-                    @click="verDetalhesAnuncio(ad)">
+                    <div class="card d-flex flex-column h-100"
+                        style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden; cursor: pointer;"
+                        @click="verDetalhesAnuncio(ad)">
 
-                        <img :src="getPrimeiraImagem(ad)" 
-                        class="card-img-top flex-grow-1" 
-                        style="object-fit:cover; object-position: center;
+                        <img :src="getPrimeiraImagem(ad)" class="card-img-top flex-grow-1" style="object-fit:cover; object-position: center;
                         width: 100%; height: 100%; border-radius: 0;
                         min-height: 120px;padding-top: 15px;padding-inline: 10px;">
 
 
-      
-                    <div class="card-body p-2 text-center" style="flex: 0 0 auto;">
-                    <h6 class="card-title mb-1 text-truncate" style="font-size: 0.9rem; white-space: normal; word-wrap: break-word;">
-                        {{ ad.name }}
-                    </h6>
-                    <p class="card-text mb-1" style="font-size: 0.8rem;">R${{ ad.price }}</p>
-                    </div>
 
-              
-                    <div class="card-footer text-center py-1 " style="background-color: #002d17; font-size: 0.75rem;">
-                        <p class="m-0">Cidade - RJ</p>
+                        <div class="card-body p-2 text-center" style="flex: 0 0 auto;">
+                            <h6 class="card-title mb-1 text-truncate"
+                                style="font-size: 0.9rem; white-space: normal; word-wrap: break-word;">
+                                {{ ad.name }}
+                            </h6>
+                            <p class="card-text mb-1" style="font-size: 0.8rem;">R${{ ad.price }}</p>
+                        </div>
+
+
+                        <div class="card-footer text-center py-1 "
+                            style="background-color: #002d17; font-size: 0.75rem;">
+                            <p class="m-0">Cidade - RJ</p>
+                        </div>
                     </div>
-                </div>
 
                 </div>
             </div>
@@ -92,13 +109,13 @@ import { router } from "@inertiajs/vue3";
 
 
 const props = defineProps<{
-  ads: Anuncio[];
-  filtro: {
-    pesquisar?: string;
-    orderBy?: string;
+    ads: Anuncio[];
+    filtro: {
+        pesquisar?: string;
+        orderBy?: string;
 
-  };
-  categorias: Categoria[];
+    };
+    categorias: Categoria[];
 }>();
 
 onMounted(() => {
@@ -108,69 +125,71 @@ defineOptions({ layout: App });
 
 
 const state = reactive({
-  filtro: props.filtro?.orderBy || null,
-  categoriaId: 0 || null,
-  lstCategorias: ['Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'],
-  lstIcones: ['fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'],
+    filtro: props.filtro?.orderBy || null,
+    categoriaId: 0 || null,
+    lstCategorias: ['Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'],
+    lstIcones: ['fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'],
 });
 
 // Função para obter a primeira imagem do anúncio
 const getPrimeiraImagem = (ad: any) => {
-  if (ad.image_path) {
-    try {
-      // Se image_path já é um array (cast do Laravel)
-      if (Array.isArray(ad.image_path)) {
-        if (ad.image_path.length > 0) {
-          return `/storage/${ad.image_path[0]}`;
+    if (ad.image_path) {
+        try {
+            // Se image_path já é um array (cast do Laravel)
+            if (Array.isArray(ad.image_path)) {
+                if (ad.image_path.length > 0) {
+                    return `/storage/${ad.image_path[0]}`;
+                }
+            } else {
+                // Se é string JSON, fazer parse
+                const imagens = JSON.parse(ad.image_path);
+                if (imagens && imagens.length > 0) {
+                    return `/storage/${imagens[0]}`;
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao processar imagens:', e);
         }
-      } else {
-        // Se é string JSON, fazer parse
-        const imagens = JSON.parse(ad.image_path);
-        if (imagens && imagens.length > 0) {
-          return `/storage/${imagens[0]}`;
-        }
-      }
-    } catch (e) {
-      console.error('Erro ao processar imagens:', e);
     }
-  }
-  // Retorna imagem padrão se não houver imagem
-  return imgEntrada;
+    // Retorna imagem padrão se não houver imagem
+    return imgEntrada;
 };
 
 // Função para ver detalhes do anúncio
 const verDetalhesAnuncio = (ad: any) => {
-  // Por enquanto, apenas mostra um alert com as informações
-  // Futuramente pode ser implementada uma página de detalhes
-  alert(`Anúncio: ${ad.name}\nPreço: R$ ${ad.price}\nDescrição: ${ad.description || 'Sem descrição'}`);
+    // Por enquanto, apenas mostra um alert com as informações
+    // Futuramente pode ser implementada uma página de detalhes
+    alert(`Anúncio: ${ad.name}\nPreço: R$ ${ad.price}\nDescrição: ${ad.description || 'Sem descrição'}`);
 };
 
 
 watch(() => [state.filtro, state.categoriaId], ([newFiltro, newCategoriaId], [oldFiltro, oldCategoriaId]) => {
-  router.get("/", { 
-    inpProcurar: props.filtro?.pesquisar, 
-    orderBy: newFiltro,
-    inpCategoriaId: state.categoriaId
-  }, {
-    preserveState: true,
-    replace: true
-  });
+    router.get("/", {
+        inpProcurar: props.filtro?.pesquisar,
+        orderBy: newFiltro,
+        inpCategoriaId: state.categoriaId
+    }, {
+        preserveState: true,
+        replace: true
+    });
 });
 
 
 </script>
 
 <style scoped>
-p{
+p {
     margin-bottom: 0;
     margin-top: 4px;
 }
-a{
+
+a {
     text-decoration: none;
     color: white;
     font-size: 18px;
 }
-.list-item{
+
+.list-item {
     height: fit-content;
     margin-top: 12px;
     padding-bottom: 4px;
@@ -178,14 +197,13 @@ a{
     width: 140px;
     border-radius: 10px;
     background-color: #002d17;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2), -2px -2px 5px rgba(255,255,255,0.1);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2), -2px -2px 5px rgba(255, 255, 255, 0.1);
 }
 
-.card div{
+.card div {
     color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
 </style>
