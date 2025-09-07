@@ -22,16 +22,16 @@ Route::get('/', function (Request $request) {
     $categoryId = $request->input('inpCategoriaId');
     
     $ads = Ad::query()
-        // aplica busca somente se houver pesquisa
-        ->when($query, function ($q) use ($query, $categoryId) {
+        // Aplicar filtro de categoria se selecionado
+        ->when($categoryId && $categoryId > 0, function ($q) use ($categoryId) {
+            $q->where('category_id', $categoryId);
+        })
+        // Aplicar busca por texto se houver
+        ->when($query, function ($q) use ($query) {
             $q->where(function ($subQ) use ($query) {
                 $subQ->where('name', 'like', "%{$query}%")
                      ->orWhere('description', 'like', "%{$query}%");
             });
-
-            if ($categoryId > 0) {
-                $q->where('category_id', $categoryId);
-            }
         });
 
     $categories = Category::all();
@@ -53,7 +53,6 @@ Route::get('/', function (Request $request) {
 
     $ads = $ads->get();
     $user = Auth::user();
-
 
     return Inertia::render('Home', [
         'ads' => $ads,
@@ -79,6 +78,58 @@ Route::get('/AdsManager', function () {
 })->middleware(['auth'])->name('AdsManager');
 
 Route::get('/chat', [ChatController::class, 'index'])->middleware(['auth'])->name('chat');
+
+// Rota para página de categoria específica
+Route::get('/categoria/{categoria}', function (Request $request, $categoria) {
+    $query = $request->input('inpProcurar');
+    $orderBy = $request->input('orderBy');
+    
+    // Buscar categoria pelo nome
+    $category = Category::where('name', $categoria)->first();
+    
+    if (!$category) {
+        abort(404, 'Categoria não encontrada');
+    }
+    
+    $ads = Ad::query()
+        ->where('category_id', $category->id)
+        ->when($query, function ($q) use ($query) {
+            $q->where(function ($subQ) use ($query) {
+                $subQ->where('name', 'like', "%{$query}%")
+                     ->orWhere('description', 'like', "%{$query}%");
+            });
+        });
+
+    switch ($orderBy) {
+        case 'preco_desc':
+            $ads->orderBy('price', 'desc');
+            break;
+        case 'preco_asc':
+            $ads->orderBy('price', 'asc');
+            break;
+        case 'data_desc':
+            $ads->orderBy('created_at', 'desc');
+            break;
+        default:
+            $ads->orderBy('price', 'asc');
+            break;
+    }
+
+    $ads = $ads->get();
+    $categories = Category::all();
+    $user = Auth::user();
+
+    return Inertia::render('Category', [
+        'ads' => $ads,
+        'categoria' => $categoria,
+        'filtro' => [
+            'pesquisar' => $query,
+            'orderBy' => $orderBy,
+        ],
+        'categorias' => $categories,
+        'usuario' => $user ? $user : null,
+    ]);
+})->name('categoria');
 
 Route::post('/chat/message', [ChatController::class, 'storeMessage'])->middleware(['auth'])->name('chat.message.store');
 Route::get('/chat/{chat}/messages', [ChatController::class, 'getMessages'])->middleware(['auth'])->name('chat.messages.get');

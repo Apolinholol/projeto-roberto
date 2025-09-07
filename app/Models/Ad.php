@@ -24,7 +24,7 @@ class Ad extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
-        'image_paths' => 'array', // Cast para array
+        'image_path' => 'array', // Cast para array
     ];
 
     public function category()

@@ -3,11 +3,11 @@
     style="background-color:#cff8e4;"
     class="d-flex flex-wrap justify-content-start my-0 align-items-center  ">
     <ul class="d-flex w-100 gap-2  flex-wrap justify-content-between align-items-center mx-2 me-5">
-            <strong class="ps-3 pt-2">CATEGORIAS:</strong>
-            <li class="list-item text-center" v-for="(categoria,index) in state.lstCategorias"
+            <strong class="ps-3 pt-2">CATEGORIA: {{ categoria.toUpperCase() }}</strong>
+            <li class="list-item text-center" v-for="(cat,index) in state.lstCategorias"
             :key="index">
-            <a :href="route('categoria', { categoria: categoria })" class="d-flex gap-2 justify-content-center align-items-end ">
-              <i :class="state.lstIcones[index] + ' pb-1 d-flex align-items-end'"></i> <p>{{categoria}}</p>
+            <a :href="route('categoria', { categoria: cat })" class="d-flex gap-2 justify-content-center align-items-end ">
+              <i :class="state.lstIcones[index] + ' pb-1 d-flex align-items-end'"></i> <p>{{cat}}</p>
             </a>
             </li>
         </ul>
@@ -19,7 +19,7 @@
             <img src="@images/VendIFF.png" alt="VendIFF Logo"  style="width: 100%;">
         </div>
     </section>
-    <h2 class="questrial-regular text-center pt-3 mb-4">Os melhores produtos para negociar, você encontra aqui!</h2>
+    <h2 class="questrial-regular text-center pt-3 mb-4">Produtos da categoria {{ categoria }}!</h2>
     <section id="SectionCards" class="d-flex  my-4 gap-4 w-100" style="overflow:hidden;">
 
         <div id="DivOrdenacaoFiltros" class="p-3 d-flex flex-column" style="min-width: 270px; border-right:1px solid rgb(0, 0, 0,0.3)">
@@ -39,8 +39,8 @@
                <select
                class="form-select mb-3" v-model="state.categoriaId" aria-label="Default select example">
                 <option :value="null"  selected >Selecione uma categoria</option>
-                   <option v-for="categoria,index in props.categorias" :key="index" :value="categoria.id">
-                          {{categoria.name}}
+                   <option v-for="cat,index in props.categorias" :key="index" :value="cat.id">
+                          {{cat.name}}
                     </option>
                </select>
            </div>
@@ -50,8 +50,7 @@
                 <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="ad in ads" :key="ad.id">
 
                 <div class="card d-flex flex-column h-100" 
-                    style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden; cursor: pointer;"
-                    @click="verDetalhesAnuncio(ad)">
+                    style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;">
 
                         <img :src="getPrimeiraImagem(ad)" 
                         class="card-img-top flex-grow-1" 
@@ -93,10 +92,10 @@ import { router } from "@inertiajs/vue3";
 
 const props = defineProps<{
   ads: Anuncio[];
+  categoria: string;
   filtro: {
     pesquisar?: string;
     orderBy?: string;
-
   };
   categorias: Categoria[];
 }>();
@@ -138,16 +137,9 @@ const getPrimeiraImagem = (ad: any) => {
   return imgEntrada;
 };
 
-// Função para ver detalhes do anúncio
-const verDetalhesAnuncio = (ad: any) => {
-  // Por enquanto, apenas mostra um alert com as informações
-  // Futuramente pode ser implementada uma página de detalhes
-  alert(`Anúncio: ${ad.name}\nPreço: R$ ${ad.price}\nDescrição: ${ad.description || 'Sem descrição'}`);
-};
-
 
 watch(() => [state.filtro, state.categoriaId], ([newFiltro, newCategoriaId], [oldFiltro, oldCategoriaId]) => {
-  router.get("/", { 
+  router.get(route('categoria', { categoria: props.categoria }), { 
     inpProcurar: props.filtro?.pesquisar, 
     orderBy: newFiltro,
     inpCategoriaId: state.categoriaId

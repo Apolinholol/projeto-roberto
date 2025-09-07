@@ -311,6 +311,7 @@ const handleFileUpload = (event: Event) => {
     // Verificar se não excede o limite de 5 fotos
     if (previewFotos.value.length + files.length > 5) {
         alert(`Você pode adicionar no máximo 5 fotos. Atualmente você tem ${previewFotos.value.length} foto(s).`);
+        target.value = ''; // Limpar o input
         return;
     }
     
@@ -334,7 +335,7 @@ const handleFileUpload = (event: Event) => {
             return;
         }
         
-        // Adicionar à lista de arquivos - CORREÇÃO AQUI
+        // Adicionar à lista de arquivos
         form.fotos.push(file);
         
         // Criar preview
@@ -444,19 +445,37 @@ const salvarAnuncio = async () => {
     salvando.value = true;
     
     try {
+        // Criar FormData para envio de arquivos
+        const formData = new FormData();
+        formData.append('titulo', form.titulo);
+        formData.append('descricao', form.descricao);
+        formData.append('categoria_id', form.categoria_id);
+        formData.append('preco', form.preco);
+        formData.append('estoque', form.estoque.toString());
+        
+        // Adicionar fotos ao FormData
+        form.fotos.forEach((foto, index) => {
+            formData.append(`fotos[${index}]`, foto);
+        });
+        
+        console.log('Enviando formulário com', form.fotos.length, 'fotos');
+        
         // Enviar para o backend usando Inertia
-        router.post('/ad', form, {
+        router.post('/ad', formData, {
+            forceFormData: true,
             onSuccess: () => {
                 alert('Anúncio criado com sucesso!');
                 limparFormulario();
             },
             onError: (erros) => {
+                console.error('Erros de validação:', erros);
                 errors.value = erros;
                 alert('Erro ao salvar anúncio. Verifique os campos.');
             }
         });
         
     } catch (error) {
+        console.error('Erro ao salvar anúncio:', error);
         alert('Erro ao salvar anúncio. Tente novamente.');
     } finally {
         salvando.value = false;
