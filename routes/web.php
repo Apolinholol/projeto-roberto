@@ -7,16 +7,20 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\ChatController;
+use App\Models\Ads;
 use App\Models\Ad;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
+
+
 Route::get('/', function (Request $request) {
     $query   = $request->input('inpProcurar');
     $orderBy = $request->input('orderBy');
     $categoryId = $request->input('inpCategoriaId');
-
+    
     $ads = Ad::query()
         // Aplicar filtro de categoria se selecionado
         ->when($categoryId && $categoryId > 0, function ($q) use ($categoryId) {
@@ -129,11 +133,7 @@ Route::get('/categoria/{categoria}', function (Request $request, $categoria) {
 
 Route::post('/chat/message', [ChatController::class, 'storeMessage'])->middleware(['auth'])->name('chat.message.store');
 Route::get('/chat/{chat}/messages', [ChatController::class, 'getMessages'])->middleware(['auth'])->name('chat.messages.get');
-
-Route::post('/chat/{chat}/finalize', [ChatController::class, 'finalizeNegotiation'])->middleware(['auth'])->name('chat.finalize');
-Route::post('/chat/{chat}/reactivate', [ChatController::class, 'reactivateNegotiation'])->middleware(['auth'])->name('chat.reactivate');
-
-Route::post('/ads', [AdsController::class, 'store'])
+Route::post('/ad', [AdsController::class, 'store'])
     ->middleware(['auth'])
     ->name('ads.store');
 

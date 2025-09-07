@@ -30,22 +30,12 @@
         <div class="chat-messages-header">
           <Heading :title="selectedChat.name" h2Class="text-center" />
         </div>
-        <div class="ad-button-container">
-          <AdBanner v-if="selectedChat.ad" :ad="selectedChat.ad" class="mt-4" />
-          <button
-            @click="toggleNegotiationStatus"
-            :class="{'finalize-button': !selectedChat.finalizado, 'reactivate-button': selectedChat.finalizado}"
-            class="negotiation-status-button"
-          >
-            {{ selectedChat.finalizado ? 'Reativar Negociação' : 'Finalizar Negociação' }}
-          </button>
-        </div>
         <div class="chat-messages-body">
           <div
-            v-for="message in orderedMessages"
+            v-for="message in messages"
             :key="message.id"
             class="message"
-            :class="{ 'sent': message.user_id === user.id, 'received': message.user_id !== user.id, 'system-message': message.system_message }"
+            :class="{ 'sent': message.user_id === user.id, 'received': message.user_id !== user.id }"
           >
             <div class="message-content">
               <p>{{ message.content }}</p>
@@ -54,8 +44,8 @@
           </div>
         </div>
         <div class="chat-messages-footer">
-          <input type="text" placeholder="Digite sua mensagem..." v-model="messageInput" @keyup.enter="sendMessage" :disabled="selectedChat && selectedChat.finalizado" />
-          <button @click="sendMessage" :disabled="selectedChat && selectedChat.finalizado">Enviar</button>
+          <input type="text" placeholder="Digite sua mensagem..." v-model="messageInput" @keyup.enter="sendMessage" />
+          <button @click="sendMessage">Enviar</button>
         </div>
       </div>
       <div v-else class="no-chat-selected">
@@ -66,11 +56,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick, PropType } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import App from '@/pages/App.vue';
 import Heading from '@/components/Heading.vue';
-import AdBanner from '@/components/AdBanner.vue';
 import axios from 'axios';
 
 defineOptions({ layout: App });
@@ -80,21 +69,12 @@ interface Participant {
   nomeCompleto: string;
 }
 
-interface Ad {
-  id: number;
-  name: string;
-  price: number;
-  image_path: string;
-}
-
 interface Chat {
   id: number;
   id_comprador: number;
   id_vendedor: number;
   buyer: Participant;
   seller: Participant;
-  ad: Ad;
-  finalizado: boolean; // Add this line
 }
 
 interface Message {
@@ -105,31 +85,23 @@ interface Message {
   created_at: string;
   updated_at: string;
   user: Participant; // Assuming user relationship is loaded
-  system_message: boolean;
 }
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 
-const props = withDefaults(defineProps<{
-  chats?: Chat[];
-  systemMessage?: Message; // Adicionado para receber a mensagem de sistema
-}>(), {
-  chats: () => [],
-});
+const props = defineProps<{
+  chats: Chat[];
+}>();
 
 const formattedChats = computed(() => {
-  console.log('User ID:', user.value?.id);
-  if (!props.chats || !user.value) return [];
+  if (!props.chats) return [];
   return props.chats.map(chat => {
-    console.log('Chat:', chat);
     const otherParticipant = chat.id_comprador === user.value.id ? chat.seller : chat.buyer;
     return {
       id: chat.id,
-      name: otherParticipant?.nomeCompleto || 'Chat',
+      name: otherParticipant ? otherParticipant.nomeCompleto : 'Chat',
       lastMessage: '', // Será implementado depois
-      ad: chat.ad,
-      finalizado: chat.finalizado, // Add this line
     };
   });
 });
@@ -138,10 +110,6 @@ const selectedChat = ref(null);
 const messageInput = ref('');
 const messages = ref<Message[]>([]);
 
-const orderedMessages = computed(() => {
-  return [...messages.value].reverse();
-});
-
 const fetchMessages = async () => {
   if (!selectedChat.value) {
     messages.value = [];
@@ -149,15 +117,7 @@ const fetchMessages = async () => {
   }
   try {
     const response = await axios.get(route('chat.messages.get', selectedChat.value.id));
-    let fetchedMessages = response.data;
-
-    // Inserir a mensagem de sistema no início, se existir
-    if (props.systemMessage) {
-      fetchedMessages.unshift(props.systemMessage);
-    }
-
-    messages.value = fetchedMessages;
-    // console.log('Mensagens carregadas:', messages.value); // Removido para depuração
+    messages.value = response.data;
     await nextTick();
     scrollToBottom();
   } catch (error) {
@@ -193,44 +153,12 @@ const scrollToBottom = () => {
 
 watch(selectedChat, (newChat) => {
   if (newChat) {
-    console.log('Selected Chat:', newChat);
-    console.log('Selected Chat Ad:', newChat.ad);
-    console.log('Current User:', user.value);
-    console.log('selectedChat.id_vendedor:', newChat.ad?.user_id, 'Type:', typeof newChat.ad?.user_id);
-    console.log('user.value.id:', user.value?.id, 'Type:', typeof user.value?.id);
-    console.log('Is current user the seller?', newChat.ad?.user_id === user.value?.id);
     fetchMessages();
   }
 }, { immediate: true });
 
 const selectChat = (chat) => {
-  console.log('Chat object selected:', chat);
   selectedChat.value = chat;
-};
-
-const toggleNegotiationStatus = async () => {
-  if (!selectedChat.value) return;
-
-  const currentStatus = selectedChat.value.finalizado;
-  const routeName = currentStatus ? 'chat.reactivate' : 'chat.finalize';
-  const confirmationMessage = currentStatus
-    ? 'Tem certeza que deseja reativar esta negociação?'
-    : 'Tem certeza que deseja finalizar esta negociação? Isso desativará o envio de mensagens.';
-
-  if (!confirm(confirmationMessage)) {
-    return;
-  }
-
-  try {
-    const response = await axios.post(route(routeName, selectedChat.value.id));
-    if (response.data.chat) {
-      selectedChat.value.finalizado = response.data.chat.finalizado;
-      fetchMessages(); // Re-fetch messages to show the system message
-    }
-  } catch (error) {
-    console.error('Error toggling negotiation status:', error);
-    alert('Ocorreu um erro ao tentar alterar o status da negociação.');
-  }
 };
 </script>
 
@@ -315,7 +243,6 @@ const toggleNegotiationStatus = async () => {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
 }
 
 .no-chat-selected {
@@ -331,48 +258,15 @@ const toggleNegotiationStatus = async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 0;
 }
 
 .chat-messages-body {
   flex-grow: 1;
   padding: 1rem;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column-reverse; /* Changed from column */
-  /* Removed: justify-content: flex-end; */
-  min-height: 0;
-  height: 0;
-}
-
-.chat-messages-footer {
-  display: flex;
-  padding: 1rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  gap: 10px; /* Space between input and button */
-}
-
-.chat-messages-footer input {
-  flex-grow: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  font-size: 1rem;
-}
-
-.chat-messages-footer button {
-  padding: 0.75rem 1.5rem;
-  background-color: #4CAF50; /* Green */
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-.chat-messages-footer button:hover {
-  background-color: #45a049;
+  display: flex; /* Added for flexbox layout */
+  flex-direction: column; /* Messages stack vertically */
+  justify-content: flex-end; /* Newest messages at the bottom */
 }
 
 .message {
@@ -390,8 +284,8 @@ const toggleNegotiationStatus = async () => {
 
 .message-content {
   max-width: 70%;
-  padding: 0.75rem 1rem;
-  border-radius: 15px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
   word-wrap: break-word;
 }
 
@@ -401,93 +295,43 @@ const toggleNegotiationStatus = async () => {
 }
 
 .message.received .message-content {
-  background-color: #e0e0e0; /* Light gray for received messages */
+  background-color: #fff; /* White for received messages */
   color: #333;
+  border: 1px solid #eee;
 }
 
 .message-time {
   font-size: 0.7rem;
-  color: #777;
+  color: #888;
   margin-top: 0.2rem;
   display: block;
-  text-align: right; /* Align time to the right for sent messages */
+  text-align: right;
 }
 
-.message.received .message-time {
-  text-align: left; /* Align time to the left for received messages */
-}
-
-.system-message {
-  margin-bottom: 0 !important; /* Remover margem inferior para mensagens de sistema */
-  padding-bottom: 0 !important; /* Remover padding inferior para mensagens de sistema */
-}
-
-.system-message .message-content {
-  background-color: #cff8e4 !important; /* Forçar a cor de fundo */
-  font-size: 0.7rem;
-  text-align: center;
-  margin: 0 auto;
-  border-radius: 15px; /* Rounded borders for system messages */
-  padding: 0.75rem 1rem; /* Adjust padding for vertical centering */
-  display: flex; /* Use flexbox for vertical centering */
-  align-items: center; /* Vertically center content */
-  justify-content: center; /* Horizontally center content */
-  min-height: 40px; /* Ensure a minimum height for centering */
-}
-
-.system-message .message-time {
-  display: none;
-}
-.negotiation-status-button {
-  width: 100%; /* Make it horizontal and same width as ad banner */
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-top: 1rem; /* Space below ad banner */
-  transition: background-color 0.3s ease;
-}
-
-.finalize-button {
-  background-color: #dc3545; /* Red color for finalize */
-  color: white;
-}
-
-.finalize-button:hover {
-  background-color: #c82333;
-}
-
-.reactivate-button {
-  background-color: #28a745; /* Green color for reactivate */
-  color: white;
-}
-
-.reactivate-button:hover {
-  background-color: #218838;
-}
-.chat-messages-header {
-  padding: 1.25rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.ad-button-container {
-  display: flex;
-  flex-direction: row; /* Changed from column */
-  align-items: center; /* Changed from stretch */
-  width: 100%;
+.chat-messages-footer {
   padding: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
 }
 
-.ad-button-container > .mt-4 { /* Targeting AdBanner with its class */
-  flex-grow: 1; /* Make AdBanner take remaining space */
-  margin-top: 0; /* Remove previous margin if any */
+.chat-messages-footer input {
+  flex-grow: 1;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
 }
 
-.negotiation-status-button {
-  width: 20%; /* Changed from 30% */
-  margin: 0; /* Removed margin: 0 auto; */
-  margin-left: 10px; /* Add some space between ad and button */
+.chat-messages-footer button {
+  background-color: #002d17;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+}
+
+.chat-messages-footer input::placeholder {
+  color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
 }
 </style>

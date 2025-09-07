@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CategorySeeder::class,
             AdsSeeder::class,
-            SystemMessageSeeder::class,
         ]);
     }
 }

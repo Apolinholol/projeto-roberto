@@ -34,7 +34,7 @@ class RegisteredUserController extends Controller
             'nomeCompleto' => 'required|string|max:255',
             'nomeUsuario' => 'required|string|max:255|unique:users,nomeUsuario',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'senha' => 'required|string|min:8|confirmed',
             'telefone' => 'nullable|string|max:20',
             'cpf' => 'required|string|max:14|unique:users,cpf',
         ]);
@@ -45,7 +45,7 @@ class RegisteredUserController extends Controller
             'telefone' => $request->telefone,
             'cpf' => $request->cpf,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'senha' => Hash::make($request->senha),
         ]);
 
         event(new Registered($user));

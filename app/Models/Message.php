@@ -11,11 +11,6 @@ class Message extends Model
         'chat_id',
         'user_id',
         'content',
-        'system_message',
-    ];
-
-    protected $casts = [
-        'system_message' => 'boolean',
     ];
 
     public function chat(): BelongsTo

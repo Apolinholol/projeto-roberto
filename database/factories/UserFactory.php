@@ -29,7 +29,7 @@ class UserFactory extends Factory
             'nomeCompleto' => fake()->name(),
             'nomeUsuario' => fake()->unique()->userName(),
             'email' => fake()->unique()->safeEmail(),
-            'password' => 'password', // Será criptografada pelo mutator setPasswordAttribute
+            'senha' => 'password', // Será criptografada pelo mutator setSenhaAttribute
             'telefone' => fake()->phoneNumber(),
             'cpf' => fake()->unique()->numerify('###########'),
             'admin' => false,

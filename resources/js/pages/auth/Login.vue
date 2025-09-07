@@ -16,13 +16,13 @@ defineProps<{
 
 const form = useForm({
     email: '',
-    password: '',
+    senha: '',
     remember: false,
 });
 
 const submit = () => {
     form.post(route('login'), {
-        onFinish: () => form.reset('password'),
+        onFinish: () => form.reset('senha'),
     });
 };
 </script>
@@ -54,21 +54,21 @@ const submit = () => {
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
-                        <Label for="password">Senha</Label>
+                        <Label for="senha">Senha</Label>
                         <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
                             Esqueceu a senha?
                         </TextLink>
                     </div>
                     <Input
-                        id="password"
+                        id="senha"
                         type="password"
                         required
                         :tabindex="2"
                         autocomplete="current-password"
-                        v-model="form.password"
+                        v-model="form.senha"
                         placeholder="Senha"
                     />
-                    <InputError :message="form.errors.password" />
+                    <InputError :message="form.errors.senha" />
                 </div>
 
                 <div class="flex items-center justify-between">
