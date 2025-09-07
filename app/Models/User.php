@@ -15,7 +15,7 @@ class User extends Authenticatable
         'nomeCompleto',
         'nomeUsuario',
         'email',
-        'senha', // campo no banco
+        'password', // campo no banco
         'telefone',
         'cpf',
         'is_active',
@@ -23,7 +23,7 @@ class User extends Authenticatable
     ];
 
     protected $hidden = [
-        'senha',
+        'password',
         'remember_token',
     ];
 
@@ -45,21 +45,5 @@ class User extends Authenticatable
     public function chatsAsSeller(): HasMany
     {
         return $this->hasMany(Chat::class, 'id_vendedor');
-    }
-
-    
-
-    public function setSenhaAttribute($value)
-{
-    if (!empty($value) && !Hash::needsRehash($value)) {
-        $this->attributes['senha'] = bcrypt($value);
-    } else {
-        $this->attributes['senha'] = $value; // já é hash
-    }
-}
-    // Diz ao Laravel que o campo de senha é "senha" e não "password"
-    public function getAuthPassword()
-    {
-        return $this->senha;
     }
 }
