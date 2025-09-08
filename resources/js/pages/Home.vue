@@ -3,7 +3,14 @@
         class="d-flex flex-wrap justify-content-start my-0 align-items-center  ">
         <ul class="d-flex w-100 gap-2  flex-wrap justify-content-between align-items-center mx-2 me-5">
             <strong class="ps-3 pt-2">CATEGORIAS:</strong>
-            <li class="list-item text-center" v-for="(categoria, index) in state.lstCategorias" :key="index">
+            <li
+                class="list-item text-center"
+                v-for="(categoria, index) in state.lstCategorias"
+                :key="index"
+                @click="selecionarCategoria(categoria, index)"
+                :class="{ 'border border-warning': state.categoriaSelecionada === categoria }"
+                style="cursor: pointer;"
+            >
                 <a class="d-flex gap-2 justify-content-center align-items-end ">
                     <i :class="state.lstIcones[index] + ' pb-1 d-flex align-items-end'"></i>
                     <p>{{ categoria }}</p>
@@ -59,8 +66,7 @@
 
         <div id="DivCards" class="flex-grow-1">
             <div class="row g-3 mx-5 gap-4">
-                <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="ad in ads" :key="ad.id">
-
+                <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="ad in filteredAds" :key="ad.id">
                     <div class="card d-flex flex-column h-100"
                         style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;">
 
@@ -98,10 +104,9 @@
 <script lang="ts" setup>
 import imgEntrada from '@images/VendIFF.png';
 import App from '@/pages/App.vue';
-import { onMounted, reactive, watch } from 'vue';
+import { onMounted, reactive, watch, computed } from 'vue';
 import { Anuncio, Categoria } from '@/types/globals';
 import { router } from "@inertiajs/vue3";
-
 
 const props = defineProps<{
     ads: Anuncio[];
@@ -122,11 +127,60 @@ defineOptions({ layout: App });
 const state = reactive({
     filtro: props.filtro?.orderBy || null,
     categoriaId: 0 || null,
+    categoriaSelecionada: null as string | null,
     lstCategorias: ['Automotivos', 'Literatura', 'Eletrônicos', 'Decoração', 'Moda'],
     lstIcones: ['fa-solid fa-car', 'bi bi-book', 'bi bi-phone', 'bi bi-house', 'fa-solid fa-shirt'],
 });
 
-// Função para testar toasts
+const selecionarCategoria = (categoria: string, index?: number) => {
+    state.categoriaSelecionada = state.categoriaSelecionada === categoria ? null : categoria;
+    if (state.categoriaSelecionada) {
+        state.categoriaId = null;
+    }
+};
+
+const getAdCategoriaName = (ad: any): string | null => {
+    if (!ad) return null;
+    if (ad.category && typeof ad.category === 'string') return ad.category;
+    if (ad.category && typeof ad.category === 'object' && ad.category.name) return ad.category.name;
+    if (ad.categoria && typeof ad.categoria === 'string') return ad.categoria;
+    if (ad.categoria && typeof ad.categoria === 'object' && ad.categoria.name) return ad.categoria.name;
+    if (ad.category_name) return ad.category_name;
+    if (ad.categoria_name) return ad.categoria_name;
+    const cid = ad.categoria_id ?? ad.category_id;
+    if (cid && props.categorias) {
+        const c = props.categorias.find((x: any) => x.id === cid);
+        if (c) return c.name;
+    }
+    return null;
+};
+
+const filteredAds = computed(() => {
+    if (!props.ads) return [];
+
+    if (state.categoriaId) {
+        return props.ads.filter(ad => {
+            if (ad.categoria_id && Number(ad.categoria_id) === Number(state.categoriaId)) return true;
+            if (ad.category_id && Number(ad.category_id) === Number(state.categoriaId)) return true;
+            if (ad.category && typeof ad.category === 'object' && ad.category.id && Number(ad.category.id) === Number(state.categoriaId)) return true;
+            if (ad.categoria && typeof ad.categoria === 'object' && ad.categoria.id && Number(ad.categoria.id) === Number(state.categoriaId)) return true;
+            const adCatName = getAdCategoriaName(ad);
+            const mapped = props.categorias?.find((c: any) => c.id === state.categoriaId);
+            if (mapped && adCatName && mapped.name && adCatName.toLowerCase() === mapped.name.toLowerCase()) return true;
+            return false;
+        });
+    }
+
+    if (state.categoriaSelecionada) {
+        return props.ads.filter(ad => {
+            const nome = getAdCategoriaName(ad);
+            return nome && nome.toLowerCase() === state.categoriaSelecionada!.toLowerCase();
+        });
+    }
+
+    return props.ads;
+});
+
 const testToasts = () => {
     console.log('Testando toasts...');
     if ((window as any).showToast) {
@@ -140,7 +194,6 @@ const testToasts = () => {
     }
 };
 
-// Função para testar modal de confirmação
 const testConfirm = () => {
     (window as any).showConfirm?.({
         title: 'Teste de Confirmação',
@@ -156,10 +209,7 @@ const testConfirm = () => {
     });
 };
 
-// Função para ver detalhes do anúncio
 const verDetalhesAnuncio = (ad: any) => {
-    // Por enquanto, apenas mostra um toast com as informações
-    // Futuramente pode ser implementada uma página de detalhes
     const detalhes = `Anúncio: ${ad.name}\nPreço: R$ ${ad.price}\nDescrição: ${ad.description || 'Sem descrição'}`;
     (window as any).showToast?.(detalhes, 'info', 8000);
 };
