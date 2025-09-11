@@ -8,7 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Chat extends Model
 {
-    
+    protected $fillable = [
+        'id_comprador',
+        'id_vendedor',
+        'ad_id',
+        'finalizado',
+    ];
 
     public function buyer(): BelongsTo
     {

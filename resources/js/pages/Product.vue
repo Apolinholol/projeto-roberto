@@ -312,10 +312,6 @@ const iniciarChat = () => {
         seller_id: props.ad.user.id,
         ad_id: props.ad.id
     }, {
-        onSuccess: (response: any) => {
-            // Redirecionar para o chat criado
-            router.visit(`/chat`);
-        },
         onError: (errors: any) => {
             console.error('Erro ao criar chat:', errors);
             (window as any).showToast?.('Erro ao iniciar conversa. Tente novamente.', 'error');

@@ -53,7 +53,8 @@ class ChatController extends Controller
                            ->first();
 
         if ($existingChat) {
-            return redirect()->route('chat.index')->with('success', 'Conversa já existe!');
+            // Anexar o ID do chat na rota para o frontend saber qual chat abrir
+            return redirect()->route('chat.index', ['chat_id' => $existingChat->id])->with('success', 'Conversa já existe!');
         }
 
         // Criar novo chat
@@ -64,7 +65,8 @@ class ChatController extends Controller
             'finalizado' => false
         ]);
 
-        return redirect()->route('chat.index')->with('success', 'Conversa iniciada com sucesso!');
+        // Anexar o ID do chat na rota para o frontend saber qual chat abrir
+        return redirect()->route('chat.index', ['chat_id' => $chat->id])->with('success', 'Conversa iniciada com sucesso!');
     }
 
     public function storeMessage(Request $request)

@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick, PropType } from 'vue';
+import { ref, computed, watch, nextTick, PropType, onMounted } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import App from '@/pages/App.vue';
 import Heading from '@/components/Heading.vue';
@@ -113,7 +113,7 @@ const user = computed(() => page.props.auth.user);
 
 const props = withDefaults(defineProps<{
   chats?: Chat[];
-  systemMessage?: Message; // Adicionado para receber a mensagem de sistema
+  systemMessage?: Message;
 }>(), {
   chats: () => [],
 });
@@ -207,6 +207,18 @@ const selectChat = (chat) => {
   console.log('Chat object selected:', chat);
   selectedChat.value = chat;
 };
+
+onMounted(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const chatId = urlParams.get('chat_id');
+
+  if (chatId && props.chats) {
+    const chatToSelect = formattedChats.value.find(chat => chat.id === parseInt(chatId, 10));
+    if (chatToSelect) {
+      selectChat(chatToSelect);
+    }
+  }
+});
 
 const toggleNegotiationStatus = async () => {
   if (!selectedChat.value) return;
