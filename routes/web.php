@@ -18,6 +18,8 @@ Route::get('/', function (Request $request) {
     $categoryId = $request->input('inpCategoriaId');
 
     $ads = Ad::query()
+        // Mostrar apenas anúncios ativos na página inicial
+        ->where('is_active', true)
         // Aplicar filtro de categoria se selecionado
         ->when($categoryId && $categoryId > 0, function ($q) use ($categoryId) {
             $q->where('category_id', $categoryId);
@@ -79,7 +81,8 @@ Route::get('/AdsManager', function () {
     ]);
 })->middleware(['auth'])->name('AdsManager');
 
-Route::get('/chat', [ChatController::class, 'index'])->middleware(['auth'])->name('chat');
+Route::get('/chat', [ChatController::class, 'index'])->middleware(['auth'])->name('chat.index');
+Route::post('/chat/create', [ChatController::class, 'create'])->middleware(['auth'])->name('chat.create');
 
 // Rota para página de categoria específica
 Route::get('/categoria/{categoria}', function (Request $request, $categoria) {
@@ -141,6 +144,24 @@ Route::post('/chat/{chat}/reactivate', [ChatController::class, 'reactivateNegoti
 Route::post('/ads', [AdsController::class, 'store'])
     ->middleware(['auth'])
     ->name('ads.store');
+
+// Rota para visualizar produto específico
+Route::get('/product/{ad}', function (Ad $ad) {
+    // Carregar relacionamentos necessários
+    $ad->load(['category', 'user']);
+    
+    // Buscar anúncios relacionados da mesma categoria (máximo 4)
+    $relatedAds = Ad::where('category_id', $ad->category_id)
+                    ->where('id', '!=', $ad->id)
+                    ->where('is_active', true)
+                    ->limit(4)
+                    ->get();
+    
+    return Inertia::render('Product', [
+        'ad' => $ad,
+        'relatedAds' => $relatedAds
+    ]);
+})->name('product.show');
 
 // Rotas para usuários gerenciarem seus próprios anúncios
 Route::middleware(['auth'])->group(function () {

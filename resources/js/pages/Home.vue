@@ -67,8 +67,9 @@
         <div id="DivCards" class="flex-grow-1">
             <div class="row g-3 mx-5 gap-4">
                 <div class="col-12 col-xxl-2 col-xl-3 col-lg-4 col-md-6" v-for="ad in filteredAds" :key="ad.id">
-                    <div class="card d-flex flex-column h-100"
-                        style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;">
+                    <div class="card d-flex flex-column h-100 cursor-pointer"
+                        style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;"
+                        @click="$inertia.visit(`/product/${ad.id}`)">
 
                         <img :src="getPrimeiraImagem(ad)" class="card-img-top flex-grow-1" style="object-fit:cover; object-position: center;
                         width: 100%; height: 100%;
@@ -292,5 +293,15 @@ a {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-pointer:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 </style>

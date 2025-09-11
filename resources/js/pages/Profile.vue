@@ -114,15 +114,31 @@
                             </p>
                         </div>
 
-                        <!-- Grid de anúncios -->
                         <div v-else class="row g-3 justify-content-center">
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3" v-for="ad in anuncios" :key="ad.id">
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3" v-for="ad in anuncios" :key="ad.id">
                                 <div class="card d-flex flex-column h-100"
-                                    style="width: 220px; height: 300px; background-color:#049f55; border-radius: 18px; overflow: hidden; margin: 0 auto;">
+                                    style="width: 220px; height: 300px; background-color:#049f55; border-radius: 18px; overflow: hidden; margin: 0 auto; position: relative;">
 
-                                    <img :src="getPrimeiraImagem(ad)" class="card-img-top" style="object-fit:cover; object-position: center;
-                                        width: 100%; height: 170px; border-radius: 0;
-                                        padding-top: 15px; padding-inline: 10px;" @error="handleImageError">
+                                    <!-- Container da imagem com overlay -->
+                                    <div style="position: relative; width: 100%; height: 170px;">
+                                        <img :src="getPrimeiraImagem(ad)" class="card-img-top" :style="`object-fit:cover; object-position: center;
+                                            width: 100%; height: 170px; border-radius: 0;
+                                            padding-top: 15px; padding-inline: 10px;
+                                            ${!ad.is_active ? 'filter: blur(2px) brightness(0.7);' : ''}`"
+                                            @error="handleImageError">
+
+                                        <!-- Badge de status desativado - apenas sobre a área da foto (com mesmo padding) -->
+                                        <div v-if="!ad.is_active"
+                                            class="position-absolute d-flex align-items-center justify-content-center"
+                                            style="top: 15px; left: 10px; right: 10px; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 5; border-radius: 8px;">
+                                            <div class="text-center">
+                                                <i class="bi bi-pause-circle-fill text-warning"
+                                                    style="font-size: 2.5rem;"></i>
+                                                <p class="text-white mt-2 mb-0 fw-bold" style="font-size: 0.8rem;">
+                                                    ANÚNCIO<br>DESATIVADO</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div class="card-body p-2" style="flex: 0 0 auto; height: 70px;">
                                         <!-- Layout em duas colunas -->
@@ -146,8 +162,8 @@
                                                     style="color: #ccc; line-height: 1.1; font-size: 0.7rem;">
                                                     Estoque: {{ ad.stock }}
                                                 </p>
-                                                <p class="mb-1"
-                                                    style="color: #ccc; line-height: 1.1; font-size: 0.7rem;">
+                                                <p class="mb-1" :class="ad.is_active ? 'text-light' : 'text-warning'"
+                                                    style="line-height: 1.1; font-size: 0.7rem; font-weight: bold;">
                                                     {{ ad.is_active ? 'Ativo' : 'Inativo' }}
                                                 </p>
                                                 <p class="mb-0"

@@ -16,8 +16,13 @@ import Toast from '@/components/Toast.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 </script>
 <style>
-  input::placeholder,
-  textarea::placeholder {
-    color: #676A6D !important;
-  }
+input::placeholder,
+textarea::placeholder {
+  color: #676A6D !important;
+}
+
+::selection {
+  background: #8ae7b9;
+  color: #002D17;
+}
 </style>

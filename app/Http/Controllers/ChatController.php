@@ -32,6 +32,41 @@ class ChatController extends Controller
         ]);
     }
 
+    public function create(Request $request)
+    {
+        $request->validate([
+            'seller_id' => 'required|exists:users,id',
+            'ad_id' => 'required|exists:ads,id'
+        ]);
+
+        $user = Auth::user();
+        
+        // Verificar se não é o próprio anunciante tentando criar chat consigo mesmo
+        if ($user->id == $request->seller_id) {
+            return response()->json(['message' => 'Você não pode iniciar uma conversa com seu próprio anúncio.'], 422);
+        }
+
+        // Verificar se já existe um chat entre esses usuários para este anúncio
+        $existingChat = Chat::where('id_comprador', $user->id)
+                           ->where('id_vendedor', $request->seller_id)
+                           ->where('ad_id', $request->ad_id)
+                           ->first();
+
+        if ($existingChat) {
+            return redirect()->route('chat.index')->with('success', 'Conversa já existe!');
+        }
+
+        // Criar novo chat
+        $chat = Chat::create([
+            'id_comprador' => $user->id,
+            'id_vendedor' => $request->seller_id,
+            'ad_id' => $request->ad_id,
+            'finalizado' => false
+        ]);
+
+        return redirect()->route('chat.index')->with('success', 'Conversa iniciada com sucesso!');
+    }
+
     public function storeMessage(Request $request)
     {
         $request->validate([
