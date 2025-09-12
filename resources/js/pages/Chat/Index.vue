@@ -33,6 +33,12 @@
         <div class="ad-button-container">
           <AdBanner v-if="selectedChat.ad" :ad="selectedChat.ad" class="mt-4" />
           <button
+            @click="viewAd"
+            class="view-ad-button"
+          >
+            Ver Anúncio
+          </button>
+          <button
             @click="toggleNegotiationStatus"
             :class="{'finalize-button': !selectedChat.finalizado, 'reactivate-button': selectedChat.finalizado}"
             class="negotiation-status-button"
@@ -66,7 +72,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick, PropType, onMounted } from 'vue';
+import { ref, computed, watch, nextTick, onMounted } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import App from '@/pages/App.vue';
 import Heading from '@/components/Heading.vue';
@@ -111,7 +117,7 @@ interface Message {
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 
-const props = withDefaults(defineProps<{
+const props = withDefaults(defineProps<{ 
   chats?: Chat[];
   systemMessage?: Message;
 }>(), {
@@ -119,10 +125,8 @@ const props = withDefaults(defineProps<{
 });
 
 const formattedChats = computed(() => {
-  console.log('User ID:', user.value?.id);
   if (!props.chats || !user.value) return [];
   return props.chats.map(chat => {
-    console.log('Chat:', chat);
     const otherParticipant = chat.id_comprador === user.value.id ? chat.seller : chat.buyer;
     return {
       id: chat.id,
@@ -149,7 +153,7 @@ const fetchMessages = async () => {
   }
   try {
     const response = await axios.get(route('chat.messages.get', selectedChat.value.id));
-    let fetchedMessages = response.data;
+    const fetchedMessages = response.data;
 
     // Inserir a mensagem de sistema no início, se existir
     if (props.systemMessage) {
@@ -157,7 +161,6 @@ const fetchMessages = async () => {
     }
 
     messages.value = fetchedMessages;
-    // console.log('Mensagens carregadas:', messages.value); // Removido para depuração
     await nextTick();
     scrollToBottom();
   } catch (error) {
@@ -193,18 +196,11 @@ const scrollToBottom = () => {
 
 watch(selectedChat, (newChat) => {
   if (newChat) {
-    console.log('Selected Chat:', newChat);
-    console.log('Selected Chat Ad:', newChat.ad);
-    console.log('Current User:', user.value);
-    console.log('selectedChat.id_vendedor:', newChat.ad?.user_id, 'Type:', typeof newChat.ad?.user_id);
-    console.log('user.value.id:', user.value?.id, 'Type:', typeof user.value?.id);
-    console.log('Is current user the seller?', newChat.ad?.user_id === user.value?.id);
     fetchMessages();
   }
 }, { immediate: true });
 
 const selectChat = (chat) => {
-  console.log('Chat object selected:', chat);
   selectedChat.value = chat;
 };
 
@@ -219,6 +215,12 @@ onMounted(() => {
     }
   }
 });
+
+const viewAd = () => {
+  if (selectedChat.value && selectedChat.value.ad) {
+    router.visit(route('product.show', selectedChat.value.ad.id));
+  }
+};
 
 const toggleNegotiationStatus = async () => {
   if (!selectedChat.value) return;
@@ -501,6 +503,23 @@ const toggleNegotiationStatus = async () => {
 .ad-button-container > .mt-4 { /* Targeting AdBanner with its class */
   flex-grow: 1; /* Make AdBanner take remaining space */
   margin-top: 0; /* Remove previous margin if any */
+}
+
+.view-ad-button {
+  width: 20%;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-left: 10px;
+  background-color: #007bff; /* Blue color for view ad */
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.view-ad-button:hover {
+  background-color: #0056b3;
 }
 
 .negotiation-status-button {
