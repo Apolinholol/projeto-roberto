@@ -17,11 +17,11 @@ class AdsController extends Controller
         'ads' => Ad::with('category')->get()->map(function ($ad) {
             return [
                 'id' => $ad->id,
-                'name' => $ad->name,
-                'price' => $ad->price,
-                'stock' => $ad->stock,
-                'is_active' => $ad->is_active,
-                'category_id' => $ad->category_id
+                'name' => $ad->name ?? 'Sem nome',
+                'price' => $ad->price ?? 0,
+                'stock' => $ad->stock ?? 0,
+                'is_active' => (bool) $ad->is_active,
+                'category' => $ad->category ? [ 'name' => $ad->category->name ] : null
             ];
         }),
     ]);

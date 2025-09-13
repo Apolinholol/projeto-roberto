@@ -30,7 +30,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Anúncios',
-        href: '/',
+        href: '/admin/ads',
         icon: Package,
     },
     {
