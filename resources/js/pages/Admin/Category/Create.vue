@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue'
+import App from '@/pages/App.vue'
 import { Link, useForm } from '@inertiajs/vue3'
-import { Button } from '@/components/ui/button'
+import { type NavItem } from '@/types';
+import { ShieldCheck, Users, Package, Tag } from 'lucide-vue-next';
+
+defineOptions({ layout: App })
 
 const form = useForm({
     name: ''
@@ -10,47 +13,75 @@ const form = useForm({
 const submit = () => {
     form.post(route('admin.categories.store'))
 }
+
+const mainNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+        icon: ShieldCheck,
+    },
+    {
+        title: 'Usuários',
+        href: '/admin/users',
+        icon: Users,
+    },
+    {
+        title: 'Anúncios',
+        href: '/',
+        icon: Package,
+    },
+    {
+        title: 'Categorias',
+        href: '/admin/categories',
+        icon: Tag,
+    },
+];
 </script>
 
 <template>
-    <AppLayout title="Nova Categoria">
-        <div class="p-4 sm:p-6 lg:p-8">
-            <form @submit.prevent="submit" class="max-w-xl">
-                <div class="space-y-12">
-                    <div class="border-b border-gray-900/10 pb-12">
-                        <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Nova Categoria</h2>
-                        <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-                            Crie uma nova categoria para os anúncios.
-                        </p>
-
-                        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div class="sm:col-span-4">
-                                <label for="name" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
-                                    Nome
-                                </label>
-                                <div class="mt-2">
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        v-model="form.name"
-                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white"
-                                    />
-                                </div>
-                                <p v-if="form.errors.name" class="mt-2 text-sm text-red-600">{{ form.errors.name }}</p>
-                            </div>
-                        </div>
+    <div class="bg-white">
+        <div class="container py-4">
+            <!-- Admin Navigation -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Admin Navigation</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <Link v-for="item in mainNavItems" :key="item.title" :href="item.href" class="btn btn-success d-flex align-items-center gap-2">
+                            <component :is="item.icon" :size="20" />
+                            <span>{{ item.title }}</span>
+                        </Link>
                     </div>
                 </div>
+            </div>
 
-                <div class="mt-6 flex items-center justify-end gap-x-6">
-                    <Link :href="route('admin.categories.index')" class="text-sm font-semibold leading-6 text-gray-900 dark:text-white">
-                        Cancelar
-                    </Link>
-                    <Button type="submit" :disabled="form.processing">
-                        Salvar
-                    </Button>
+            <!-- Page Content -->
+            <h1 class="mb-4">Nova Categoria</h1>
+            <div class="card">
+                <div class="card-body">
+                    <form @submit.prevent="submit" class="needs-validation">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nome</label>
+                            <input
+                                type="text"
+                                id="name"
+                                v-model="form.name"
+                                class="form-control"
+                                :class="{ 'is-invalid': form.errors.name }"
+                            />
+                            <div v-if="form.errors.name" class="invalid-feedback">{{ form.errors.name }}</div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <Link :href="route('admin.categories.index')" class="btn btn-secondary">
+                                Cancelar
+                            </Link>
+                            <button type="submit" class="btn btn-primary" :disabled="form.processing">
+                                Salvar
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
-    </AppLayout>
+    </div>
 </template>

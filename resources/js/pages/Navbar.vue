@@ -8,7 +8,7 @@
                         style="width: 150px; height: auto" />
                 </a>
             </li>
-            <li class="w-25">
+            <li class="w-25" v-if="showSearchBar">
                 <div class="input-group " style="margin-top: 10px; ">
                     <button class="btn bi bi-search" type="button" @click="pesquisar"></button>
                     <input @keyup.enter="pesquisar" v-model="state.inpProcurar" type="text"
@@ -17,11 +17,13 @@
             </li>
             <li style="margin-right:30px">
                 <div class="d-flex gap-5" style="margin-top: 10px;">
-                    <!-- Botão adicionar anúncio -->
-                    <a href="/AdsManager" class="bi bi-plus-circle text-white" style="font-size: 22.7px; margin-top: 1px; text-decoration: none;"></a>
-
-                    <!-- Botão chat -->
-                    <a href="/chat" class="bi bi-chat-dots fs-4 text-white" style="font-size: 22.7px; margin-top: 1px; text-decoration: none;"></a>
+                    <template v-if="showSearchBar">
+                        <!-- Botão adicionar anúncio -->
+                        <a href="/AdsManager" class="bi bi-plus-circle text-white" style="font-size: 22.7px; margin-top: 1px; text-decoration: none;"></a>
+    
+                        <!-- Botão chat -->
+                        <a href="/chat" class="bi bi-chat-dots fs-4 text-white" style="font-size: 22.7px; margin-top: 1px; text-decoration: none;"></a>
+                    </template>
                     <span class="dropdown">
                         <!-- Botão perfil -->
                         <button class="bi bi-person-circle fs-4" type="button" data-bs-toggle="dropdown"
@@ -58,6 +60,11 @@ const state = reactive({
 // Usar dados globais do Inertia
 const page = usePage();
 const usuario = computed(() => page.props.auth?.user);
+
+const showSearchBar = computed(() => {
+    const url = page.url;
+    return !url.startsWith('/admin') && url !== '/dashboard';
+});
 
 console.log('Usuario do auth:', usuario.value);
 
