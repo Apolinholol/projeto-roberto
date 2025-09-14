@@ -30,6 +30,8 @@ export interface Anuncio {
     id: number;
     name: string;
     price: number;
+    cidade:string;
+    uf:string;
     description?: string;
 }
 

@@ -20,6 +20,8 @@ class AdsController extends Controller
                 'name' => $ad->name ?? 'Sem nome',
                 'price' => $ad->price ?? 0,
                 'stock' => $ad->stock ?? 0,
+                'cidade' => $ad->cidade ?? 'Sem cidade',
+                'uf' => $ad->uf ?? 'Sem UF',
                 'is_active' => (bool) $ad->is_active,
                 'category' => $ad->category ? [ 'name' => $ad->category->name ] : null
             ];
@@ -39,12 +41,15 @@ class AdsController extends Controller
 
     public function store(Request $request)
 {
+
     $request->validate([
         'titulo' => 'required|string|max:255',
         'descricao' => 'required|string|max:500',
         'preco' => 'required|numeric|min:0.01',
         'estoque' => 'required|integer|min:1',
         'categoria_id' => 'required|exists:categories,id',
+        'cidade' => 'required',
+        'uf' => 'required',
         'fotos' => 'required|array|min:1|max:10',
         'fotos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB por foto
     ], [
@@ -54,6 +59,8 @@ class AdsController extends Controller
         'preco.required' => 'O preço é obrigatório.',
         'preco.min' => 'O preço deve ser maior que zero.',
         'estoque.required' => 'O estoque é obrigatório.',
+        'cidade.required' => 'A cidade é obrigatória.',
+        'uf.required' => 'A unidade federativa é obrigatória.',
         'estoque.min' => 'O estoque deve ser pelo menos 1.',
         'categoria_id.required' => 'A categoria é obrigatória.',
         'categoria_id.exists' => 'Categoria inválida.',
@@ -80,6 +87,8 @@ class AdsController extends Controller
         'description' => $request->descricao,
         'price' => $request->preco,
         'stock' => $request->estoque,
+        'cidade' => $request->cidade,
+        'uf' => $request->uf,
         'category_id' => $request->categoria_id,
         'image_path' => json_encode($imagePaths), // Salvar todas as imagens como JSON
         'is_active' => true,
@@ -106,6 +115,8 @@ class AdsController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'cidade' => 'required',
+            'uf' => 'required',
             'is_active' => 'sometimes|boolean',
             'category_id' => 'required|exists:categories,id',
         ]);

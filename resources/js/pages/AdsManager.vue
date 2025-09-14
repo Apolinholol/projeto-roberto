@@ -83,7 +83,44 @@
                                     {{ errors.categoria_id }}
                                 </div>
                             </div>
+                            <!-- Cidade -->
+                            <div class="mb-3">
+                                <label for="cidade" class="form-label">
+                                    <strong>Cidade:</strong>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="cidade"
+                                    v-model="form.cidade"
+                                    :class="{ 'is-invalid': errors.cidade }"
+                                    placeholder="Ex: São Paulo"
+                                    required
+                                >
+                                <div v-if="errors.cidade" class="invalid-feedback">
+                                    {{ errors.cidade }}
+                                </div>
+                            </div>
 
+                            <!-- UF -->
+                            <div class="mb-3">
+                                <label for="uf" class="form-label">
+                                    <strong>UF:</strong>
+                                </label>
+                                <select 
+                                    class="form-select" 
+                                    id="uf"
+                                    v-model="form.uf"
+                                    :class="{ 'is-invalid': errors.uf }"
+                                    required
+                                >
+                                    <option value="" selected hidden>Selecione o estado</option>
+                                    <option v-for="uf,index in state.lstUFdesc" :key="uf" :value="state.lstUF[index]">{{ uf }}</option>
+                                </select>
+                                <div v-if="errors.uf" class="invalid-feedback">
+                                    {{ errors.uf }}
+                                </div>
+                            </div>
                             <!-- Preço -->
                             <div class="mb-3">
                                 <label for="preco" class="form-label">
@@ -269,6 +306,24 @@ const props = defineProps<{
     errors?: Record<string, string>;
 }>();
 
+const state = ({
+    lstUFdesc: [
+        "Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará",
+        "Distrito Federal", "Espírito Santo", "Goiás", "Maranhão",
+        "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará",
+        "Paraíba", "Paraná", "Pernambuco", "Piauí", "Rio de Janeiro",
+        "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia",
+        "Roraima", "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"
+    ],
+    lstUF: [
+        "AC", "AL", "AP", "AM", "BA", "CE",
+        "DF", "ES", "GO", "MA",
+        "MT", "MS", "MG", "PA",
+        "PB", "PR", "PE", "PI", "RJ",
+        "RN", "RS", "RO",
+        "RR", "SC", "SP", "SE", "TO"
+    ],
+})
 // Estados reativos
 const salvando = ref(false);
 const previewFotos = ref<Array<{url: string, name: string, file: File}>>([]);
@@ -279,6 +334,8 @@ const form = reactive({
     titulo: '',
     descricao: '',
     categoria_id: '',
+    uf:'',
+    cidade:'',
     preco: '',
     estoque: 1,
     fotos: [] as File[],
@@ -415,6 +472,14 @@ const validarFormulario = () => {
     if (!form.categoria_id) {
         novosErros.categoria_id = 'A categoria é obrigatória.';
     }
+
+    if (!form.cidade.trim()) {
+        novosErros.cidade = 'A cidade é obrigatória.';
+    }
+
+    if (!form.uf) {
+        novosErros.uf = 'O estado (UF) é obrigatório.';
+    }
     
     if (!form.preco || parseFloat(form.preco) <= 0) {
         novosErros.preco = 'O preço deve ser maior que zero.';
@@ -451,6 +516,8 @@ const salvarAnuncio = async () => {
         formData.append('descricao', form.descricao);
         formData.append('categoria_id', form.categoria_id);
         formData.append('preco', form.preco);
+        formData.append('uf', form.uf);
+        formData.append('cidade', form.cidade);
         formData.append('estoque', form.estoque.toString());
         
         // Adicionar fotos ao FormData

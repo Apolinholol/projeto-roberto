@@ -15,6 +15,12 @@ class AdsSeeder extends Seeder
      */
     public function run(): void
     {
+
+         $ufs = [
+            'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA',
+            'MT','MS','MG','PA','PB','PR','PE','PI','RJ',
+            'RN','RS','RO','RR','SC','SP','SE','TO'
+        ];
         $faker = Faker::create('pt_BR');
         
         // Pega todos os usuários existentes
@@ -49,6 +55,8 @@ class AdsSeeder extends Seeder
                 'name' => $faker->sentence(3),
                 'description' => $faker->paragraph(3),
                 'price' => $faker->randomFloat(2, 10, 5000),
+                'cidade' => fake('pt_BR')->city(),
+                'uf' => fake()->randomElement($ufs),
                 'stock' => $faker->numberBetween(1, 100),
                 'category_id' => $categorias->random()->id,
             ]);

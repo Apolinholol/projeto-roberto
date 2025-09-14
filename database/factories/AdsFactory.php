@@ -14,13 +14,22 @@ class AdsFactory extends Factory
      *
      * @return array<string, mixed>
      */
+   
     public function definition(): array
     {
+
+    $ufs = [
+    'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA',
+    'MT','MS','MG','PA','PB','PR','PE','PI','RJ',
+    'RN','RS','RO','RR','SC','SP','SE','TO'
+    ];
         return [
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->sentence(),
             'price' => $this->faker->randomFloat(2, 10, 1000),
             'stock' => $this->faker->numberBetween(0, 100),
+            'cidade' => fake('pt_BR')->city(),
+            'uf' => fake()->randomElement($ufs),
             'is_active' => $this->faker->boolean(),
             'category_id' => \App\Models\Category::inRandomOrder()->first()?->id
             ?? \App\Models\Category::factory()->create()->id

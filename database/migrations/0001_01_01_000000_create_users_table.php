@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('nomeUsuario')->unique();
             $table->string('email')->unique();
             $table->string('password'); 
+            $table->string('cidade'); 
+            $table->string('uf'); 
             $table->string('telefone')->nullable();
             $table->string('cpf')->unique();
             $table->boolean('admin')->default(false);

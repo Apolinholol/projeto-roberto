@@ -14,6 +14,8 @@ class Ads extends Model
         'description',
         'price',
         'stock',
+        'cidade',
+        'uf',
         'is_active',
         'category_id'
     ];

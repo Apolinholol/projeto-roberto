@@ -36,6 +36,8 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'telefone' => 'nullable|string|max:20',
+            'cidade'=> 'required',
+            'uf'=>'required',
             'cpf' => 'required|string|max:14|unique:users,cpf',
         ]);
 
@@ -45,6 +47,8 @@ class RegisteredUserController extends Controller
             'telefone' => $request->telefone,
             'cpf' => $request->cpf,
             'email' => $request->email,
+            'cidade'=> $request->cidade,
+            'uf'=>$request->uf,
             'password' => Hash::make($request->password),
         ]);
 

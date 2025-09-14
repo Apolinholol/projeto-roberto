@@ -20,6 +20,8 @@ class UserController extends Controller
                     'email' => $user->email,
                     'telefone' => $user->telefone,
                     'cpf' => $user->cpf,
+                    'cidade' => $user->cidade,
+                    'uf' => $user->uf,
                     'is_active' => $user->is_active,
                     'created_at' => $user->created_at->toFormattedDateString(),
                 ];

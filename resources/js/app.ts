@@ -9,6 +9,7 @@ import { initializeTheme } from './composables/useAppearance';
 import VueSnap from 'vue-snap';
 import 'vue-snap/dist/vue-snap.css';
 
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({

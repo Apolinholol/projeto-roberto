@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { watch } from 'vue';
 
 const form = useForm({
    nomeCompleto: '',
@@ -16,9 +18,102 @@ const form = useForm({
    password_confirmation: '',
    telefone: '',
    cpf: '',
+   uf:'',
+   cidade:'',
 });
 
+const state = ({
+    lstUFdesc: [
+        "Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará",
+        "Distrito Federal", "Espírito Santo", "Goiás", "Maranhão",
+        "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará",
+        "Paraíba", "Paraná", "Pernambuco", "Piauí", "Rio de Janeiro",
+        "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia",
+        "Roraima", "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"
+    ],
+    lstUF: [
+        "AC", "AL", "AP", "AM", "BA", "CE",
+        "DF", "ES", "GO", "MA",
+        "MT", "MS", "MG", "PA",
+        "PB", "PR", "PE", "PI", "RJ",
+        "RN", "RS", "RO",
+        "RR", "SC", "SP", "SE", "TO"
+    ],
+})
+const cpfError = ref<string | null>(null);
+
+function validarCPF(cpf: string): boolean {
+    cpf = cpf.replace(/\D/g, '');
+
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+        return false;
+    }
+
+    let soma = 0, resto;
+
+
+    for (let i = 1; i <= 9; i++) {
+        soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+    }
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(9, 10))) return false;
+
+
+    soma = 0;
+    for (let i = 1; i <= 10; i++) {
+        soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+    }
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(10, 11))) return false;
+
+    return true;
+}
+
+function maskCPF(value: string): string {
+  return value
+    .replace(/\D/g, '')                 
+    .replace(/(\d{3})(\d)/, '$1.$2')    
+    .replace(/(\d{3})(\d)/, '$1.$2')    
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2'); 
+}
+
+function maskCelular(value: string): string {
+  return value
+    .replace(/\D/g, '')                    
+    .replace(/^(\d{2})(\d)/, '($1) $2')      
+    .replace(/(\d{5})(\d{4})$/, '$1-$2')     
+    .replace(/(\d{4})(\d{4})$/, '$1-$2');    
+}
+
+
+
+watch(
+    () => form.cpf,
+    (newVal) => {
+        if (newVal && newVal !== maskCPF(newVal)) {
+            form.cpf = maskCPF(newVal);
+        }
+    }
+);
+
+watch(
+    () => form.telefone,
+    (newVal) => {
+        if (newVal && newVal !== maskCelular(newVal)) {
+            form.telefone = maskCelular(newVal);
+        }
+    }
+);
+
 const submit = () => {
+    if (!validarCPF(form.cpf)) {
+        cpfError.value = "CPF inválido";
+        return;
+    }
+    cpfError.value = null;
+
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'cpf'),
     });
@@ -33,7 +128,7 @@ const submit = () => {
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="nomeCompleto">Nome Completo</Label>
-                    <Input id="nomeCompleto" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.nomeCompleto" placeholder="Full name" />
+                    <Input id="nomeCompleto" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.nomeCompleto" placeholder="Nome completo" />
                     <InputError :message="form.errors.nomeCompleto" />
                 </div>
 
@@ -47,14 +142,31 @@ const submit = () => {
                 
                 <div class="grid gap-2">
                     <Label for="cpf">CPF</Label>
-                    <Input id="cpf" type="text" required :tabindex="3" autocomplete="off" v-model="form.cpf" placeholder="CPF" />
+                    <Input id="cpf" type="text" required :tabindex="3" autocomplete="off" v-model="form.cpf" placeholder="CPF"  
+                    maxLength="14" />
+                    <InputError :message="cpfError || form.errors.cpf" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="cidade">Cidade</Label>
+                    <Input id="cidade" type="text" required :tabindex="3" autocomplete="off" v-model="form.cidade" placeholder="Cidade" />
+                    <InputError :message="form.errors.cidade" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="UF">UF</Label>
+                    <select class="form-select" v-model="form.uf" style="background-color: rgb(4, 159, 85);" placeholder="Unidade Federativa">
+                        <option v-for="UFdesc,index in state.lstUFdesc" :key="'uf'+ index" :value="state.lstUF[index]">
+                            {{ UFdesc }}
+                        </option>
+                    </select>
                     <InputError :message="form.errors.cpf" />
                 </div>
 
                 
                 <div class="grid gap-2">
                     <Label for="telefone">Telefone</Label>
-                    <Input id="telefone" type="text" required :tabindex="4" autocomplete="tel" v-model="form.telefone" placeholder="Telefone" />
+                    <Input id="telefone" type="text" required :tabindex="4" autocomplete="tel" v-model="form.telefone" placeholder="Telefone" maxLength="15" />
                     <InputError :message="form.errors.telefone" />
                 </div>
 
@@ -73,7 +185,7 @@ const submit = () => {
                         :tabindex="6"
                         autocomplete="new-password"
                         v-model="form.password"
-                        placeholder="Password"
+                        placeholder="Senha"
                     />
                     <InputError :message="form.errors.password" />
                 </div>
@@ -87,7 +199,7 @@ const submit = () => {
                         :tabindex="7"
                         autocomplete="new-password"
                         v-model="form.password_confirmation"
-                        placeholder="Confirm password"
+                        placeholder="Confirmar senha"
                     />
                     <InputError :message="form.errors.password_confirmation" />
                 </div>

@@ -18,6 +18,8 @@ class User extends Authenticatable
         'password', // campo no banco
         'telefone',
         'cpf',
+        'cidade',
+        'uf',
         'is_active',
         'admin'
     ];

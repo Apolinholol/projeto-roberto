@@ -89,7 +89,7 @@
 
                         <div class="card-footer text-center py-1 "
                             style="background-color: #002d17; font-size: 0.75rem;">
-                            <p class="m-0">Cidade - RJ</p>
+                            <p class="m-0">{{ ad.uf }} - {{ ad.cidade }}</p>
                         </div>
                     </div>
 
