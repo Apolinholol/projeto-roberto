@@ -31,6 +31,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
+            'foto' => 'required',
             'nomeCompleto' => 'required|string|max:255',
             'nomeUsuario' => 'required|string|max:255|unique:users,nomeUsuario',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email',
@@ -42,6 +43,7 @@ class RegisteredUserController extends Controller
         ]);
 
         $user = User::create([
+            'image_path'=> $request->foto,
             'nomeCompleto' => $request->nomeCompleto,
             'nomeUsuario' => $request->nomeUsuario,
             'telefone' => $request->telefone,

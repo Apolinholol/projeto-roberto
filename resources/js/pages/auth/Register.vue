@@ -20,6 +20,7 @@ const form = useForm({
    cpf: '',
    uf:'',
    cidade:'',
+   foto: null as File | null,
 });
 
 const state = ({
@@ -87,7 +88,19 @@ function maskCelular(value: string): string {
     .replace(/(\d{4})(\d{4})$/, '$1-$2');    
 }
 
-
+const previewFoto = ref<string | null>(null);
+function handleFotoUpload(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target?.result as string;
+            form.foto = base64;
+            previewFoto.value = base64;
+        };
+        reader.readAsDataURL(file);
+    }
+}
 
 watch(
     () => form.cpf,
@@ -126,6 +139,22 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
+
+                <div class="mb-3 d-flex align-items-center flex-column">
+                    <label for="foto" class="form-label"><strong>Foto de Perfil:</strong></label>
+                    <input 
+                        type="file" 
+                        class="form-control" 
+                        id="foto"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                        @change="handleFotoUpload"
+                    />
+                
+                    <div v-if="previewFoto" class="mt-2">
+                        <img :src="previewFoto" alt="Preview" style="max-width: 120px; border-radius: 50%;">
+                    </div>
+                </div>
+
                 <div class="grid gap-2">
                     <Label for="nomeCompleto">Nome Completo</Label>
                     <Input id="nomeCompleto" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.nomeCompleto" placeholder="Nome completo" />
@@ -160,7 +189,7 @@ const submit = () => {
                             {{ UFdesc }}
                         </option>
                     </select>
-                    <InputError :message="form.errors.cpf" />
+                    <InputError :message="form.errors.uf" />
                 </div>
 
                 

@@ -26,6 +26,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'password' => 'password', 
             'cidade' => fake('pt_BR')->city(),
+            'image_path' => '',
             'uf' => fake()->randomElement($ufs),
             'telefone' => fake('pt_BR')->phoneNumber(),
             'cpf' => fake('pt_BR')->unique()->cpf(false), 

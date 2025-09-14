@@ -20,6 +20,7 @@ class User extends Authenticatable
         'cpf',
         'cidade',
         'uf',
+        'image_path',
         'is_active',
         'admin'
     ];

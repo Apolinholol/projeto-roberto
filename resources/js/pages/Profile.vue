@@ -8,12 +8,14 @@
 
                 <!-- Foto do usuário -->
                 <div class="user-info p-3 mb-3 mt-10 d-flex align-items-center" style="">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" fill="#01a656"
+                    <img :src="usuario?.image_path" alt="Foto do usuário" style="border-radius: 80px;">
+
+                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" fill="#01a656"
                         class="bi bi-person-circle" viewBox="0 0 16 16">
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
                         <path fill-rule="evenodd"
                             d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
-                    </svg>
+                    </svg> -->
 
                     <div class="user-details" style="border: 1px solid #022413; margin-left: 50px; width: 500px;">
                         <h3 class="d-flex align-items-center"
@@ -74,7 +76,7 @@
                                 <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
                             </svg>
                             <p class="user-city d-flex mb-0 ml-2 align-items-center">
-                                Miracema - RJ
+                               {{ usuario.uf }} - {{ usuario.cidade}}
                             </p>
                         </div>
 

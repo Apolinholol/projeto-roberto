@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('password'); 
             $table->string('cidade'); 
             $table->string('uf'); 
+            $table->binary('image_path');
             $table->string('telefone')->nullable();
             $table->string('cpf')->unique();
             $table->boolean('admin')->default(false);

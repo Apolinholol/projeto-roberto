@@ -84,43 +84,48 @@
                                 </div>
                             </div>
                             <!-- Cidade -->
-                            <div class="mb-3">
-                                <label for="cidade" class="form-label">
-                                    <strong>Cidade:</strong>
-                                </label>
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    id="cidade"
-                                    v-model="form.cidade"
-                                    :class="{ 'is-invalid': errors.cidade }"
-                                    placeholder="Ex: São Paulo"
-                                    required
-                                >
-                                <div v-if="errors.cidade" class="invalid-feedback">
-                                    {{ errors.cidade }}
-                                </div>
-                            </div>
+                             <span class="row">
 
-                            <!-- UF -->
-                            <div class="mb-3">
-                                <label for="uf" class="form-label">
-                                    <strong>UF:</strong>
-                                </label>
-                                <select 
-                                    class="form-select" 
-                                    id="uf"
-                                    v-model="form.uf"
-                                    :class="{ 'is-invalid': errors.uf }"
-                                    required
-                                >
-                                    <option value="" selected hidden>Selecione o estado</option>
-                                    <option v-for="uf,index in state.lstUFdesc" :key="uf" :value="state.lstUF[index]">{{ uf }}</option>
-                                </select>
-                                <div v-if="errors.uf" class="invalid-feedback">
-                                    {{ errors.uf }}
-                                </div>
-                            </div>
+                                 <div class="mb-3 col-9">
+                                     <label for="cidade" class="form-label">
+                                         <strong>Cidade:</strong>
+                                     </label>
+                                     <input 
+                                         type="text" 
+                                         class="form-control" 
+                                         id="cidade"
+                                         v-model="form.cidade"
+                                         :class="{ 'is-invalid': errors.cidade }"
+                                         placeholder="Ex: São Paulo"
+                                         required
+                                     >
+                                     <div v-if="errors.cidade" class="invalid-feedback">
+                                         {{ errors.cidade }}
+                                     </div>
+                                 </div>
+     
+                                 <!-- UF -->
+                                 <div class="mb-3 col-3">
+                                     <label for="uf" class="form-label">
+                                         <strong>UF:</strong>
+                                     </label>
+                                     <select 
+                                         class="form-select" 
+                                         id="uf"
+                                         v-model="form.uf"
+                                         :class="{ 'is-invalid': errors.uf }"
+                                         required
+                                     >
+                                         <option value="" selected hidden>Selecione o estado</option>
+                                         <option v-for="uf,index in state.lstUFdesc" :key="uf" :value="state.lstUF[index]">
+                                            {{ state.lstUF[index] }} - {{ uf }}
+                                        </option>
+                                     </select>
+                                     <div v-if="errors.uf" class="invalid-feedback">
+                                         {{ errors.uf }}
+                                     </div>
+                                 </div>
+                             </span>
                             <!-- Preço -->
                             <div class="mb-3">
                                 <label for="preco" class="form-label">
@@ -171,10 +176,9 @@
                                     class="form-control" 
                                     id="fotos"
                                     @change="handleFileUpload"
-                                    accept="image/*"
+                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                                     :class="{ 'is-invalid': errors.fotos }"
                                     multiple
-                                    
                                 >
                                 
                                 <div class="form-text">
