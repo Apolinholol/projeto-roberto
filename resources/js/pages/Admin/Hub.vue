@@ -3,7 +3,7 @@ import App from '@/pages/App.vue'
 import StatCard from '@/components/StatCard.vue'
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { ShieldCheck, Users, Package, Tag } from 'lucide-vue-next';
+import { ShieldCheck, Users, Package, Tag, BarChart3 } from 'lucide-vue-next';
 
 defineOptions({ layout: App })
 
@@ -20,6 +20,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: ShieldCheck,
+    },
+    {
+        title: 'Métricas',
+        href: '/admin/metrics',
+        icon: BarChart3,
     },
     {
         title: 'Usuários',

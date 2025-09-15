@@ -284,7 +284,7 @@ a {
     list-style: none;
     width: 140px;
     border-radius: 10px;
-    background-color: #002d17;
+    background-color: rgb(0, 45, 23);
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2), -2px -2px 5px rgba(255, 255, 255, 0.1);
 }
 

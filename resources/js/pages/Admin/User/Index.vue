@@ -2,7 +2,7 @@
 import App from '@/pages/App.vue'
 import { Link } from '@inertiajs/vue3'
 import { type NavItem } from '@/types';
-import { ShieldCheck, Users, Package, Tag } from 'lucide-vue-next';
+import { ShieldCheck, Users, Package, Tag, BarChart, BarChart3 } from 'lucide-vue-next';
 
 defineOptions({ layout: App })
 
@@ -22,6 +22,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: ShieldCheck,
+    },
+    {
+        title: 'Métricas',
+        href: '/admin/metrics',
+        icon: BarChart3,
     },
     {
         title: 'Usuários',
@@ -47,7 +52,7 @@ const mainNavItems: NavItem[] = [
             <!-- Admin Navigation -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Admin Navigation</h5>
+                    <h5 class="card-title">Menu de navegação</h5>
                     <div class="d-flex flex-wrap gap-2">
                         <Link v-for="item in mainNavItems" :key="item.title" :href="item.href" class="btn btn-success d-flex align-items-center gap-2">
                             <component :is="item.icon" :size="20" />

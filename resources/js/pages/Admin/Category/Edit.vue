@@ -27,6 +27,7 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: ShieldCheck,
     },
+    
     {
         title: 'Usuários',
         href: '/admin/users',

@@ -28,7 +28,7 @@ Route::get('/', function (Request $request) {
         ->when($query, function ($q) use ($query) {
             $q->where(function ($subQ) use ($query) {
                 $subQ->where('name', 'like', "%{$query}%")
-                     ->orWhere('description', 'like', "%{$query}%");
+                    ->orWhere('description', 'like', "%{$query}%");
             });
         });
 
@@ -66,9 +66,9 @@ Route::get('/', function (Request $request) {
 Route::get('/profile', function () {
     $user = Auth::user();
     $userAds = Ad::where('user_id', $user->id)
-                 ->orderBy('created_at', 'desc')
-                 ->get();
-    
+        ->orderBy('created_at', 'desc')
+        ->get();
+
     return Inertia::render('Profile', [
         'anuncios' => $userAds
     ]);
@@ -88,20 +88,20 @@ Route::post('/chat/create', [ChatController::class, 'create'])->middleware(['aut
 Route::get('/categoria/{categoria}', function (Request $request, $categoria) {
     $query = $request->input('inpProcurar');
     $orderBy = $request->input('orderBy');
-    
+
     // Buscar categoria pelo nome
     $category = Category::where('name', $categoria)->first();
-    
+
     if (!$category) {
         abort(404, 'Categoria não encontrada');
     }
-    
+
     $ads = Ad::query()
         ->where('category_id', $category->id)
         ->when($query, function ($q) use ($query) {
             $q->where(function ($subQ) use ($query) {
                 $subQ->where('name', 'like', "%{$query}%")
-                     ->orWhere('description', 'like', "%{$query}%");
+                    ->orWhere('description', 'like', "%{$query}%");
             });
         });
 
@@ -149,14 +149,14 @@ Route::post('/ads', [AdsController::class, 'store'])
 Route::get('/product/{ad}', function (Ad $ad) {
     // Carregar relacionamentos necessários
     $ad->load(['category', 'user']);
-    
+
     // Buscar anúncios relacionados da mesma categoria (máximo 4)
     $relatedAds = Ad::where('category_id', $ad->category_id)
-                    ->where('id', '!=', $ad->id)
-                    ->where('is_active', true)
-                    ->limit(4)
-                    ->get();
-    
+        ->where('id', '!=', $ad->id)
+        ->where('is_active', true)
+        ->limit(4)
+        ->get();
+
     return Inertia::render('Product', [
         'ad' => $ad,
         'relatedAds' => $relatedAds
@@ -175,10 +175,11 @@ Route::get('/dashboard', [HubController::class, 'index'])
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/hub', [HubController::class, 'index'])->name('hub');
+    Route::get('/metrics', [\App\Http\Controllers\Admin\MetricsController::class, 'index'])->name('metrics');
     Route::resource('users', UserController::class)->only(['index', 'update', 'destroy']);
     Route::resource('ads', AdsController::class);
     Route::resource('categories', CategoryController::class)->except(['show']);
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
