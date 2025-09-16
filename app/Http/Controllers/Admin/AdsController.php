@@ -48,8 +48,6 @@ class AdsController extends Controller
         'preco' => 'required|numeric|min:0.01',
         'estoque' => 'required|integer|min:1',
         'categoria_id' => 'required|exists:categories,id',
-        'cidade' => 'required',
-        'uf' => 'required',
         'fotos' => 'required|array|min:1|max:10',
         'fotos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB por foto
     ], [
@@ -59,8 +57,6 @@ class AdsController extends Controller
         'preco.required' => 'O preço é obrigatório.',
         'preco.min' => 'O preço deve ser maior que zero.',
         'estoque.required' => 'O estoque é obrigatório.',
-        'cidade.required' => 'A cidade é obrigatória.',
-        'uf.required' => 'A unidade federativa é obrigatória.',
         'estoque.min' => 'O estoque deve ser pelo menos 1.',
         'categoria_id.required' => 'A categoria é obrigatória.',
         'categoria_id.exists' => 'Categoria inválida.',
@@ -72,6 +68,16 @@ class AdsController extends Controller
         'fotos.*.max' => 'Cada imagem deve ter no máximo 5MB.',
     ]);
 
+    // Obter dados do usuário logado
+    $user = Auth::user();
+    
+    // Verificar se o usuário tem cidade e UF configurados
+    if (!$user->cidade || !$user->uf) {
+        return back()->withErrors([
+            'user_location' => 'Para criar anúncios, você precisa ter cidade e UF configurados no seu perfil. Atualize suas informações pessoais primeiro.'
+        ]);
+    }
+    
     // Upload das fotos
     $imagePaths = [];
     if ($request->hasFile('fotos')) {
@@ -81,14 +87,14 @@ class AdsController extends Controller
         }
     }
 
-    // Criar anúncio
+    // Criar anúncio usando cidade e UF do usuário logado
     Ad::create([
         'name' => $request->titulo,
         'description' => $request->descricao,
         'price' => $request->preco,
         'stock' => $request->estoque,
-        'cidade' => $request->cidade,
-        'uf' => $request->uf,
+        'cidade' => $user->cidade,
+        'uf' => $user->uf,
         'category_id' => $request->categoria_id,
         'image_path' => json_encode($imagePaths), // Salvar todas as imagens como JSON
         'is_active' => true,
@@ -108,27 +114,81 @@ class AdsController extends Controller
     ]);
 }
 
-    public function update(Request $request, Ad $ad)
+    public function update(Request $request, $id)
     {
+        // Buscar anúncio do usuário logado
+        $ad = Ad::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        
+        // Validação similar ao store
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'cidade' => 'required',
-            'uf' => 'required',
-            'is_active' => 'sometimes|boolean',
-            'category_id' => 'required|exists:categories,id',
+            'titulo' => 'required|string|max:255',
+            'descricao' => 'required|string|max:500',
+            'preco' => 'required|numeric|min:0.01',
+            'estoque' => 'required|integer|min:1',
+            'categoria_id' => 'required|exists:categories,id',
+            'fotos' => 'nullable|array|max:10',
+            'fotos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ], [
+            'titulo.required' => 'O título é obrigatório.',
+            'descricao.required' => 'A descrição é obrigatória.',
+            'descricao.max' => 'A descrição deve ter no máximo 500 caracteres.',
+            'preco.required' => 'O preço é obrigatório.',
+            'preco.min' => 'O preço deve ser maior que zero.',
+            'estoque.required' => 'O estoque é obrigatório.',
+            'estoque.min' => 'O estoque deve ser pelo menos 1.',
+            'categoria_id.required' => 'A categoria é obrigatória.',
+            'categoria_id.exists' => 'Categoria inválida.',
+            'fotos.max' => 'Máximo de 10 fotos permitidas.',
+            'fotos.*.image' => 'Todos os arquivos devem ser imagens.',
+            'fotos.*.mimes' => 'As imagens devem ser do tipo: jpeg, png, jpg, gif ou webp.',
+            'fotos.*.max' => 'Cada imagem deve ter no máximo 5MB.',
         ]);
 
-        if ($request->has('is_active')) {
-            $ad->is_active = $request->is_active;
-            $ad->save();
+        // Obter dados do usuário logado
+        $user = Auth::user();
+        
+        // Verificar se o usuário tem cidade e UF configurados
+        if (!$user->cidade || !$user->uf) {
+            return back()->withErrors([
+                'user_location' => 'Para editar anúncios, você precisa ter cidade e UF configurados no seu perfil.'
+            ]);
+        }
+        
+        // Upload das novas fotos se houver
+        $imagePaths = [];
+        if ($request->hasFile('fotos')) {
+            // Manter fotos existentes se não enviou novas
+            $existingImages = is_string($ad->image_path) ? json_decode($ad->image_path, true) : $ad->image_path;
+            if (is_array($existingImages)) {
+                $imagePaths = $existingImages;
+            }
+            
+            // Adicionar novas fotos
+            foreach ($request->file('fotos') as $foto) {
+                $path = $foto->store('ads', 'public');
+                $imagePaths[] = $path;
+            }
         } else {
-            $ad->update($request->all());
+            // Manter fotos existentes
+            $imagePaths = is_string($ad->image_path) ? json_decode($ad->image_path, true) : $ad->image_path;
+            if (!is_array($imagePaths)) {
+                $imagePaths = [];
+            }
         }
 
-        return redirect('/admin/ads');
+        // Atualizar anúncio
+        $ad->update([
+            'name' => $request->titulo,
+            'description' => $request->descricao,
+            'price' => $request->preco,
+            'stock' => $request->estoque,
+            'cidade' => $user->cidade,
+            'uf' => $user->uf,
+            'category_id' => $request->categoria_id,
+            'image_path' => json_encode($imagePaths),
+        ]);
+
+        return redirect()->route('profile')->with('success', 'Anúncio atualizado com sucesso!');
     }
 
     public function destroy(Ad $ad)

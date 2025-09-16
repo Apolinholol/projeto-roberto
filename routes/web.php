@@ -81,6 +81,25 @@ Route::get('/AdsManager', function () {
     ]);
 })->middleware(['auth'])->name('AdsManager');
 
+// Rota para editar anúncio específico
+Route::get('/AdsManager/edit/{id}', function ($id) {
+    $ad = Ad::with('category')->where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+    $categories = Category::all();
+    
+    return Inertia::render('AdsManager', [
+        'categorias' => $categories,
+        'adToEdit' => [
+            'id' => $ad->id,
+            'titulo' => $ad->name,
+            'descricao' => $ad->description,
+            'preco' => $ad->price,
+            'estoque' => $ad->stock,
+            'categoria_id' => $ad->category_id,
+            'fotos' => is_string($ad->image_path) ? json_decode($ad->image_path, true) ?? [] : ($ad->image_path ?? [])
+        ]
+    ]);
+})->middleware(['auth'])->name('AdsManager.edit');
+
 Route::get('/chat', [ChatController::class, 'index'])->middleware(['auth'])->name('chat.index');
 Route::post('/chat/create', [ChatController::class, 'create'])->middleware(['auth'])->name('chat.create');
 
@@ -144,6 +163,10 @@ Route::post('/chat/{chat}/reactivate', [ChatController::class, 'reactivateNegoti
 Route::post('/ads', [AdsController::class, 'store'])
     ->middleware(['auth'])
     ->name('ads.store');
+
+Route::put('/ads/{id}', [AdsController::class, 'update'])
+    ->middleware(['auth'])
+    ->name('ads.update');
 
 // Rota para visualizar produto específico
 Route::get('/product/{ad}', function (Ad $ad) {

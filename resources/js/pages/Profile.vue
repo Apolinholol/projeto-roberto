@@ -8,7 +8,7 @@
 
                 <!-- Foto do usuário -->
                 <div class="user-info p-3 mb-3 mt-10 d-flex align-items-center" style="">
-                    <img :src="usuario?.image_path" alt="Foto do usuário" style="border-radius: 80px;">
+                    <img :src="usuario?.image_path" alt="Foto do usuário" class="profile-picture">
 
                     <!-- <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" fill="#01a656"
                         class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -179,7 +179,8 @@
                                     <div class="card-footer d-flex justify-content-center gap-1 py-1"
                                         style="background-color: #002d17; font-size: 0.75rem;">
                                         <button class="btn btn-sm btn-warning"
-                                            style="font-size: 0.7rem; padding: 2px 6px;" title="Editar">
+                                            style="font-size: 0.7rem; padding: 2px 6px;" title="Editar"
+                                            @click="editAd(ad)">
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         <button class="btn btn-sm"
@@ -331,8 +332,42 @@ const formatarData = (dataString: string) => {
         return 'Data inválida';
     }
 };
+
+// Função para editar anúncio
+const editAd = (ad: any) => {
+    // Redirecionar para AdsManager com os dados do anúncio para edição
+    router.visit(`/AdsManager/edit/${ad.id}`);
+};
 </script>
 
 <style scoped>
-/* Seus estilos personalizados aqui */
+/* Estilos para foto de perfil */
+.profile-picture {
+    min-width: 150px;
+    min-height: 150px;
+    max-width: 250px;
+    max-height: 250px;
+    border-radius: 100%;
+    object-fit: cover;
+    object-position: center;
+    border: 4px solid #049f55;
+}
+
+@media (max-width: 768px) {
+    .profile-picture {
+        min-width: 120px;
+        min-height: 120px;
+        max-width: 180px;
+        max-height: 180px;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-picture {
+        min-width: 100px;
+        min-height: 100px;
+        max-width: 140px;
+        max-height: 140px;
+    }
+}
 </style>

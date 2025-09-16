@@ -6,10 +6,21 @@
                     <div class="card-header bg-primary text-white" style="background: linear-gradient(to left, #5fd098 0%, #4ebf84 100%) !important;">
                         <h2 class="mb-0">
                             <i class="bi bi-megaphone me-2"></i>
-                            CRIAR NOVO ANÚNCIO
+                            {{ props.adToEdit ? 'EDITAR ANÚNCIO' : 'CRIAR NOVO ANÚNCIO' }}
                         </h2>
                     </div>
                     <div class="card-body">
+                        <!-- Alerta para erros gerais -->
+                        <div v-if="errors.user_location" class="alert alert-warning mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Atenção!</strong> {{ errors.user_location }}
+                            <br>
+                            <small class="mt-2 d-block">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Vá em "Perfil" para completar suas informações de localização.
+                            </small>
+                        </div>
+                        
                         <form @submit.prevent="salvarAnuncio">
                             <!-- Título do Anúncio -->
                             <div class="mb-3">
@@ -70,62 +81,11 @@
                                             {{ categoria.name }}
                                         </option>
                                     </select>
-                                    <button 
-                                        type="button" 
-                                        class="btn btn-outline-secondary"
-                                        @click="mostrarModalCategoria = true"
-                                        title="Adicionar nova categoria"
-                                    >
-                                        <i class="bi bi-plus-circle"></i>
-                                    </button>
                                 </div>
                                 <div v-if="errors.categoria_id" class="invalid-feedback">
                                     {{ errors.categoria_id }}
                                 </div>
                             </div>
-                            <!-- Cidade -->
-                             <span class="row">
-
-                                 <div class="mb-3 col-9">
-                                     <label for="cidade" class="form-label">
-                                         <strong>Cidade:</strong>
-                                     </label>
-                                     <input 
-                                         type="text" 
-                                         class="form-control" 
-                                         id="cidade"
-                                         v-model="form.cidade"
-                                         :class="{ 'is-invalid': errors.cidade }"
-                                         placeholder="Ex: São Paulo"
-                                         required
-                                     >
-                                     <div v-if="errors.cidade" class="invalid-feedback">
-                                         {{ errors.cidade }}
-                                     </div>
-                                 </div>
-     
-                                 <!-- UF -->
-                                 <div class="mb-3 col-3">
-                                     <label for="uf" class="form-label">
-                                         <strong>UF:</strong>
-                                     </label>
-                                     <select 
-                                         class="form-select" 
-                                         id="uf"
-                                         v-model="form.uf"
-                                         :class="{ 'is-invalid': errors.uf }"
-                                         required
-                                     >
-                                         <option value="" selected hidden>Selecione o estado</option>
-                                         <option v-for="uf,index in state.lstUFdesc" :key="uf" :value="state.lstUF[index]">
-                                            {{ state.lstUF[index] }} - {{ uf }}
-                                        </option>
-                                     </select>
-                                     <div v-if="errors.uf" class="invalid-feedback">
-                                         {{ errors.uf }}
-                                     </div>
-                                 </div>
-                             </span>
                             <!-- Preço -->
                             <div class="mb-3">
                                 <label for="preco" class="form-label">
@@ -246,7 +206,7 @@
                                     <div class="spinner-border spinner-border-sm me-1" v-if="salvando" role="status">
                                         <span class="visually-hidden">Salvando...</span>
                                     </div>
-                                    {{ salvando ? 'Salvando...' : 'Salvar Anúncio' }}
+                                    {{ salvando ? (props.adToEdit ? 'Atualizando...' : 'Salvando...') : (props.adToEdit ? 'Atualizar Anúncio' : 'Salvar Anúncio') }}
                                 </button>
                             </div>
                         </form>
@@ -256,42 +216,6 @@
         </div>
     </div>
 
-    <!-- Modal para adicionar nova categoria -->
-    <div class="modal fade" :class="{ show: mostrarModalCategoria }" :style="{ display: mostrarModalCategoria ? 'block' : 'none' }" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="bi bi-plus-circle me-2"></i>
-                        Adicionar Nova Categoria
-                    </h5>
-                    <button type="button" class="btn-close" @click="mostrarModalCategoria = false"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="nomeCategoria" class="form-label">Nome da Categoria</label>
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            id="nomeCategoria"
-                            v-model="novaCategoria.nome"
-                            placeholder="Ex: Esportes"
-                        >
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="mostrarModalCategoria = false">
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn btn-primary" @click="adicionarCategoria">
-                        <i class="bi bi-plus-lg me-1"></i>
-                        Adicionar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal-backdrop fade" :class="{ show: mostrarModalCategoria }" v-if="mostrarModalCategoria"></div>
 </template>
 
 <script lang="ts" setup>
@@ -308,26 +232,17 @@ const props = defineProps<{
         name: string;
     }>;
     errors?: Record<string, string>;
+    adToEdit?: {
+        id: number;
+        titulo: string;
+        descricao: string;
+        preco: string;
+        estoque: number;
+        categoria_id: number;
+        fotos: string[];
+    };
 }>();
 
-const state = ({
-    lstUFdesc: [
-        "Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará",
-        "Distrito Federal", "Espírito Santo", "Goiás", "Maranhão",
-        "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará",
-        "Paraíba", "Paraná", "Pernambuco", "Piauí", "Rio de Janeiro",
-        "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia",
-        "Roraima", "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"
-    ],
-    lstUF: [
-        "AC", "AL", "AP", "AM", "BA", "CE",
-        "DF", "ES", "GO", "MA",
-        "MT", "MS", "MG", "PA",
-        "PB", "PR", "PE", "PI", "RJ",
-        "RN", "RS", "RO",
-        "RR", "SC", "SP", "SE", "TO"
-    ],
-})
 // Estados reativos
 const salvando = ref(false);
 const previewFotos = ref<Array<{url: string, name: string, file: File}>>([]);
@@ -335,13 +250,11 @@ const mostrarModalCategoria = ref(false);
 
 // Formulário principal
 const form = reactive({
-    titulo: '',
-    descricao: '',
-    categoria_id: '',
-    uf:'',
-    cidade:'',
-    preco: '',
-    estoque: 1,
+    titulo: props.adToEdit?.titulo || '',
+    descricao: props.adToEdit?.descricao || '',
+    categoria_id: props.adToEdit?.categoria_id?.toString() || '',
+    preco: props.adToEdit?.preco || '',
+    estoque: props.adToEdit?.estoque || 1,
     fotos: [] as File[],
 });
 
@@ -476,14 +389,6 @@ const validarFormulario = () => {
     if (!form.categoria_id) {
         novosErros.categoria_id = 'A categoria é obrigatória.';
     }
-
-    if (!form.cidade.trim()) {
-        novosErros.cidade = 'A cidade é obrigatória.';
-    }
-
-    if (!form.uf) {
-        novosErros.uf = 'O estado (UF) é obrigatório.';
-    }
     
     if (!form.preco || parseFloat(form.preco) <= 0) {
         novosErros.preco = 'O preço deve ser maior que zero.';
@@ -520,8 +425,6 @@ const salvarAnuncio = async () => {
         formData.append('descricao', form.descricao);
         formData.append('categoria_id', form.categoria_id);
         formData.append('preco', form.preco);
-        formData.append('uf', form.uf);
-        formData.append('cidade', form.cidade);
         formData.append('estoque', form.estoque.toString());
         
         // Adicionar fotos ao FormData
@@ -531,19 +434,36 @@ const salvarAnuncio = async () => {
         
         console.log('Enviando formulário com', form.fotos.length, 'fotos');
         
-        // Enviar para o backend usando Inertia
-        router.post('/ads', formData, {
-            forceFormData: true,
-            onSuccess: () => {
-                (window as any).showToast?.('Anúncio criado com sucesso!', 'success');
-                limparFormulario();
-            },
-            onError: (erros) => {
-                console.error('Erros de validação:', erros);
-                errors.value = erros;
-                (window as any).showToast?.('Erro ao salvar anúncio. Verifique os campos.', 'error');
-            }
-        });
+        // Verificar se está editando ou criando
+        if (props.adToEdit) {
+            // Editando anúncio existente
+            formData.append('_method', 'PUT');
+            router.post(`/ads/${props.adToEdit.id}`, formData, {
+                forceFormData: true,
+                onSuccess: () => {
+                    (window as any).showToast?.('Anúncio atualizado com sucesso!', 'success');
+                },
+                onError: (erros) => {
+                    console.error('Erros de validação:', erros);
+                    errors.value = erros;
+                    (window as any).showToast?.('Erro ao atualizar anúncio. Verifique os campos.', 'error');
+                }
+            });
+        } else {
+            // Criando novo anúncio
+            router.post('/ads', formData, {
+                forceFormData: true,
+                onSuccess: () => {
+                    (window as any).showToast?.('Anúncio criado com sucesso!', 'success');
+                    limparFormulario();
+                },
+                onError: (erros) => {
+                    console.error('Erros de validação:', erros);
+                    errors.value = erros;
+                    (window as any).showToast?.('Erro ao salvar anúncio. Verifique os campos.', 'error');
+                }
+            });
+        }
         
     } catch (error) {
         console.error('Erro ao salvar anúncio:', error);
