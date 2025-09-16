@@ -39,11 +39,11 @@
             Ver Anúncio
           </button>
           <button
-            @click="toggleNegotiationStatus"
-            :class="{'finalize-button': !selectedChat.finalizado, 'reactivate-button': selectedChat.finalizado}"
-            class="negotiation-status-button"
+            v-if="selectedChat && selectedChat.ad && user && selectedChat.ad.user_id === user.id && !selectedChat.finalizado"
+            @click="finalizeNegotiation"
+            class="negotiation-status-button finalize-button"
           >
-            {{ selectedChat.finalizado ? 'Reativar Negociação' : 'Finalizar Negociação' }}
+            Finalizar Negociação
           </button>
         </div>
         <div class="chat-messages-body">
@@ -88,6 +88,7 @@ interface Participant {
 
 interface Ad {
   id: number;
+  user_id: number;
   name: string;
   price: number;
   image_path: string;
@@ -100,7 +101,7 @@ interface Chat {
   buyer: Participant;
   seller: Participant;
   ad: Ad;
-  finalizado: boolean; // Add this line
+  finalizado: boolean;
 }
 
 interface Message {
@@ -110,7 +111,7 @@ interface Message {
   content: string;
   created_at: string;
   updated_at: string;
-  user: Participant; // Assuming user relationship is loaded
+  user: Participant;
   system_message: boolean;
 }
 
@@ -133,7 +134,7 @@ const formattedChats = computed(() => {
       name: otherParticipant?.nomeCompleto || 'Chat',
       lastMessage: '', // Será implementado depois
       ad: chat.ad,
-      finalizado: chat.finalizado, // Add this line
+      finalizado: chat.finalizado,
     };
   });
 });
@@ -155,7 +156,6 @@ const fetchMessages = async () => {
     const response = await axios.get(route('chat.messages.get', selectedChat.value.id));
     const fetchedMessages = response.data;
 
-    // Inserir a mensagem de sistema no início, se existir
     if (props.systemMessage) {
       fetchedMessages.unshift(props.systemMessage);
     }
@@ -201,7 +201,8 @@ watch(selectedChat, (newChat) => {
 }, { immediate: true });
 
 const selectChat = (chat) => {
-  selectedChat.value = chat;
+  const fullChatData = props.chats.find(c => c.id === chat.id);
+  selectedChat.value = fullChatData;
 };
 
 onMounted(() => {
@@ -209,9 +210,9 @@ onMounted(() => {
   const chatId = urlParams.get('chat_id');
 
   if (chatId && props.chats) {
-    const chatToSelect = formattedChats.value.find(chat => chat.id === parseInt(chatId, 10));
+    const chatToSelect = props.chats.find(chat => chat.id === parseInt(chatId, 10));
     if (chatToSelect) {
-      selectChat(chatToSelect);
+      selectedChat.value = chatToSelect;
     }
   }
 });
@@ -222,32 +223,24 @@ const viewAd = () => {
   }
 };
 
-const toggleNegotiationStatus = async () => {
+const finalizeNegotiation = async () => {
   if (!selectedChat.value) return;
 
-  const currentStatus = selectedChat.value.finalizado;
-  const routeName = currentStatus ? 'chat.reactivate' : 'chat.finalize';
-  const title = currentStatus ? 'Reativar Negociação' : 'Finalizar Negociação';
-  const message = currentStatus
-    ? 'Tem certeza que deseja reativar esta negociação?'
-    : 'Tem certeza que deseja finalizar esta negociação?\n\nIsso desativará o envio de mensagens.';
-  const confirmText = currentStatus ? 'Reativar' : 'Finalizar';
-
   (window as any).showConfirm?.({
-    title,
-    message,
-    confirmText,
+    title: 'Finalizar Negociação',
+    message: 'Tem certeza que deseja finalizar esta negociação e marcar o item como vendido?\n\nIsso desativará o anúncio e todos os outros chats relacionados a ele.',
+    confirmText: 'Sim, Finalizar',
     cancelText: 'Cancelar',
     onConfirm: async () => {
       try {
-        const response = await axios.post(route(routeName, selectedChat.value.id));
+        const response = await axios.post(route('chat.finalize', selectedChat.value.id));
         if (response.data.chat) {
           selectedChat.value.finalizado = response.data.chat.finalizado;
           fetchMessages(); // Re-fetch messages to show the system message
         }
       } catch (error) {
-        console.error('Error toggling negotiation status:', error);
-        (window as any).showToast?.('Ocorreu um erro ao tentar alterar o status da negociação.', 'error');
+        console.error('Error finalizing negotiation:', error);
+        (window as any).showToast?.('Ocorreu um erro ao tentar finalizar a negociação.', 'error');
       }
     }
   });
@@ -438,8 +431,8 @@ const toggleNegotiationStatus = async () => {
 }
 
 .system-message {
-  margin-bottom: 0 !important; /* Remover margem inferior para mensagens de sistema */
-  padding-bottom: 0 !important; /* Remover padding inferior para mensagens de sistema */
+  /* A margem inferior de 0.5rem é herdada da classe .message, criando o espaçamento */
+  padding-bottom: 0 !important;
 }
 
 .system-message .message-content {
@@ -526,5 +519,10 @@ const toggleNegotiationStatus = async () => {
   width: 20%; /* Changed from 30% */
   margin: 0; /* Removed margin: 0 auto; */
   margin-left: 10px; /* Add some space between ad and button */
+}
+
+.chat-messages-footer input:disabled,
+.chat-messages-footer button:disabled {
+  cursor: not-allowed;
 }
 </style>

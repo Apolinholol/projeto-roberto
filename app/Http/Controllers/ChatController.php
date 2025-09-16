@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Chat;
 use App\Models\Message;
+use App\Models\Ad;
 
 class ChatController extends Controller
 {
@@ -116,43 +117,47 @@ class ChatController extends Controller
     {
         $user = Auth::user();
 
-        // Verify if the authenticated user is either the buyer or the seller of the chat
-        if ($chat->id_comprador !== $user->id && $chat->id_vendedor !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        // Apenas o vendedor pode finalizar a negociação e marcar como vendido
+        if ($chat->id_vendedor !== $user->id) {
+            return response()->json(['message' => 'Apenas o vendedor pode finalizar a negociação.'], 403);
         }
 
+        $ad = $chat->ad;
+
+        // 1. Desativar o anúncio principal
+        if ($ad) {
+            $ad->is_active = false;
+            $ad->save();
+        }
+
+        // 2. Finalizar o chat atual e enviar a mensagem de "vendido"
         $chat->finalizado = true;
         $chat->save();
 
         Message::create([
             'chat_id' => $chat->id,
-            'user_id' => null, // System message, no specific user
-            'content' => $user->nomeCompleto . ' finalizou a negociação.',
+            'user_id' => null,
+            'content' => 'Este item foi vendido por ' . $user->nomeCompleto . '.',
             'system_message' => true,
         ]);
 
-        return response()->json(['message' => 'Negotiation finalized successfully.', 'chat' => $chat]);
-    }
+        // 3. Finalizar todos os outros chats relacionados ao mesmo anúncio
+        if ($ad) {
+            $otherChats = Chat::where('ad_id', $ad->id)->where('id', '!=', $chat->id)->get();
 
-    public function reactivateNegotiation(Chat $chat)
-    {
-        $user = Auth::user();
+            foreach ($otherChats as $otherChat) {
+                $otherChat->finalizado = true;
+                $otherChat->save();
 
-        // Verify if the authenticated user is either the buyer or the seller of the chat
-        if ($chat->id_comprador !== $user->id && $chat->id_vendedor !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+                Message::create([
+                    'chat_id' => $otherChat->id,
+                    'user_id' => null,
+                    'content' => 'Este anúncio foi desativado pelo vendedor.',
+                    'system_message' => true,
+                ]);
+            }
         }
 
-        $chat->finalizado = false;
-        $chat->save();
-
-        Message::create([
-            'chat_id' => $chat->id,
-            'user_id' => null, // System message, no specific user
-            'content' => $user->nomeCompleto . ' reativou a negociação.',
-            'system_message' => true,
-        ]);
-
-        return response()->json(['message' => 'Negotiation reactivated successfully.', 'chat' => $chat]);
+        return response()->json(['message' => 'Negotiation finalized successfully.', 'chat' => $chat]);
     }
 }
