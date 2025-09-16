@@ -151,7 +151,7 @@ const submit = () => {
                     />
                 
                     <div v-if="previewFoto" class="mt-2">
-                        <img :src="previewFoto" alt="Preview" style="max-width: 120px; border-radius: 50%;">
+                        <img :src="previewFoto" alt="Preview" class="preview-foto">
                     </div>
                 </div>
 
@@ -247,3 +247,15 @@ const submit = () => {
         </form>
     </AuthBase>
 </template>
+
+<style scoped>
+.preview-foto {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    border: 2px solid #049f55;
+    background-color: #f8f9fa;
+}
+</style>

@@ -343,31 +343,26 @@ const editAd = (ad: any) => {
 <style scoped>
 /* Estilos para foto de perfil */
 .profile-picture {
-    min-width: 150px;
-    min-height: 150px;
-    max-width: 250px;
-    max-height: 250px;
-    border-radius: 100%;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
     object-fit: cover;
     object-position: center;
     border: 4px solid #049f55;
+    background-color: #f8f9fa;
 }
 
 @media (max-width: 768px) {
     .profile-picture {
-        min-width: 120px;
-        min-height: 120px;
-        max-width: 180px;
-        max-height: 180px;
+        width: 150px;
+        height: 150px;
     }
 }
 
 @media (max-width: 576px) {
     .profile-picture {
-        min-width: 100px;
-        min-height: 100px;
-        max-width: 140px;
-        max-height: 140px;
+        width: 120px;
+        height: 120px;
     }
 }
 </style>
