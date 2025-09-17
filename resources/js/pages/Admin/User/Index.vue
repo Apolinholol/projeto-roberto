@@ -96,7 +96,7 @@ const mainNavItems: NavItem[] = [
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ user.created_at }}</td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                         <div class="flex items-center justify-end gap-x-2">
-                                            <Link :href="route('admin.users.update', { user: user.id })" method="put" :data="{ is_active: !user.is_active }" as="button" class="btn btn-warning btn-sm">
+                                            <Link :href="route('admin.users.toggleStatus', { user: user.id })" method="put" :data="{ is_active: !user.is_active }" as="button" class="btn btn-warning btn-sm">
                                                 {{ user.is_active ? 'Desativar' : 'Ativar' }}
                                             </Link>
                                             <Link :href="route('admin.users.destroy', { user: user.id })" method="delete" as="button" class="btn btn-danger btn-sm">

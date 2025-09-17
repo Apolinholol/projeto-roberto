@@ -198,6 +198,19 @@ class AdsController extends Controller
         return redirect('/admin/ads');
     }
 
+    public function toggleStatus(Request $request, Ad $ad)
+    {
+        $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        $ad->update([
+            'is_active' => $request->is_active,
+        ]);
+
+        return redirect()->back()->with('success', 'Status do anúncio atualizado com sucesso!');
+    }
+
     // Métodos para usuários gerenciarem seus próprios anúncios
     public function updateMyAd(Request $request, Ad $ad)
     {

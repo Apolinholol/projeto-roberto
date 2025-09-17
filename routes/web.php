@@ -193,13 +193,16 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/dashboard', [HubController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'admin'])
     ->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/hub', [HubController::class, 'index'])->name('hub');
     Route::get('/metrics', [\App\Http\Controllers\Admin\MetricsController::class, 'index'])->name('metrics');
-    Route::resource('users', UserController::class)->only(['index', 'update', 'destroy']);
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::put('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+    Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::put('ads/{ad}/toggle-status', [AdsController::class, 'toggleStatus'])->name('ads.toggleStatus');
     Route::resource('ads', AdsController::class);
     Route::resource('categories', CategoryController::class)->except(['show']);
 });

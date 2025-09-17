@@ -29,7 +29,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user)
+    public function toggleStatus(Request $request, User $user)
     {
         $request->validate([
             'is_active' => 'required|boolean',

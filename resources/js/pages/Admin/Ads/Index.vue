@@ -98,7 +98,7 @@ const mainNavItems: NavItem[] = [
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                         <div class="flex items-center justify-end gap-x-2">
-                                            <Link :href="route('admin.ads.update', { ad: ad.id })" method="put" :data="{ is_active: !ad.is_active }" as="button" class="btn btn-warning btn-sm">
+                                            <Link :href="route('admin.ads.toggleStatus', { ad: ad.id })" method="put" :data="{ is_active: !ad.is_active }" as="button" class="btn btn-warning btn-sm">
                                                 {{ ad.is_active ? 'Desativar' : 'Ativar' }}
                                             </Link>
                                             <Link :href="route('admin.ads.destroy', { ad: ad.id })" method="delete" as="button" class="btn btn-danger btn-sm">
