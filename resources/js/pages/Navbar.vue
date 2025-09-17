@@ -32,7 +32,13 @@
                         <ul class="dropdown-menu">
                             <li class="d-flex justify-content-center">
                                     <p v-if="usuario">Olá, {{ usuario?.nomeCompleto }}</p>
-                                    <p v-else>Bem-vindo, visitante!</p>
+                                    <div v-else class="text-center">
+                                        <p>Bem-vindo, visitante!</p>
+                                        <div class="d-flex justify-content-center gap-2 mt-2">
+                                            <a href="/login" class="btn btn-primary btn-sm">Login</a>
+                                            <a href="/register" class="btn btn-secondary btn-sm">Registrar</a>
+                                        </div>
+                                    </div>
                             </li>
                             <li><a class="dropdown-item" href="/profile" v-if="usuario" >Meus anúncios e perfil</a></li>
                             <li class="d-flex justify-content-center " style="height:30px;" @click="logout" v-if="usuario">

@@ -55,7 +55,10 @@ class ChatController extends Controller
 
         if ($existingChat) {
             // Anexar o ID do chat na rota para o frontend saber qual chat abrir
-            return redirect()->route('chat.index', ['chat_id' => $existingChat->id])->with('success', 'Conversa já existe!');
+            return response()->json([
+                'message' => 'Conversa já existe!',
+                'redirect' => route('chat.index', ['chat_id' => $existingChat->id])
+            ]);
         }
 
         // Criar novo chat
@@ -67,7 +70,10 @@ class ChatController extends Controller
         ]);
 
         // Anexar o ID do chat na rota para o frontend saber qual chat abrir
-        return redirect()->route('chat.index', ['chat_id' => $chat->id])->with('success', 'Conversa iniciada com sucesso!');
+        return response()->json([
+            'message' => 'Conversa iniciada com sucesso!',
+            'redirect' => route('chat.index', ['chat_id' => $chat->id])
+        ]);
     }
 
     public function storeMessage(Request $request)
@@ -96,9 +102,15 @@ class ChatController extends Controller
         return response()->json($message, 201);
     }
 
-    public function getMessages(Chat $chat)
+    public function getMessages(Request $request, Chat $chat)
     {
-        $messages = $chat->messages()->with('user')->orderBy('created_at', 'asc')->get();
+        $query = $chat->messages()->with('user')->orderBy('created_at', 'asc');
+
+        if ($request->has('last_message_id')) {
+            $query->where('id', '>', $request->input('last_message_id'));
+        }
+
+        $messages = $query->get();
 
         return response()->json($messages);
     }
@@ -113,8 +125,18 @@ class ChatController extends Controller
         return response()->json($systemMessage);
     }
 
-    public function finalizeNegotiation(Chat $chat)
+    public function finalizeNegotiation(Request $request, Chat $chat)
     {
+        $request->validate([
+            'finalization_reason' => ['required', 'string', \Illuminate\Validation\Rule::in([
+                'SOLD_HERE', 
+                'SOLD_ELSEWHERE', 
+                'SALE_CANCELLED', 
+                'BUYER_ISSUE', 
+                'OTHER'
+            ])],
+        ]);
+
         $user = Auth::user();
 
         // Apenas o vendedor pode finalizar a negociação e marcar como vendido
@@ -132,6 +154,7 @@ class ChatController extends Controller
 
         // 2. Finalizar o chat atual e enviar a mensagem de "vendido"
         $chat->finalizado = true;
+        $chat->finalization_reason = $request->input('finalization_reason');
         $chat->save();
 
         Message::create([

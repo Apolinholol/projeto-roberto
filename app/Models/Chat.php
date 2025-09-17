@@ -13,6 +13,7 @@ class Chat extends Model
         'id_vendedor',
         'ad_id',
         'finalizado',
+        'finalization_reason',
     ];
 
     protected static function booted(): void

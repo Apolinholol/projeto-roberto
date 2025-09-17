@@ -21,10 +21,32 @@ const props = defineProps({
   },
 });
 
-const imageUrl = computed(() => {
-  if (props.ad && Array.isArray(props.ad.image_path) && props.ad.image_path.length > 0) {
-    return `/storage/${props.ad.image_path[0]}`;
-  }
-  return imgEntrada; // Imagem padrão caso não haja imagem
+const imagens = computed(() => {
+    if (!props.ad.image_path) return [imgEntrada];
+    
+    try {
+        let imageArray: string[] = [];
+        
+        if (Array.isArray(props.ad.image_path)) {
+            imageArray = props.ad.image_path;
+        } else if (typeof props.ad.image_path === 'string') {
+            imageArray = JSON.parse(props.ad.image_path);
+        }
+        
+        return imageArray.length > 0 ? imageArray : [imgEntrada];
+    } catch (e) {
+        console.error('Erro ao processar imagens:', e);
+        return [imgEntrada];
+    }
 });
+
+const getImageUrl = (imagePath: string) => {
+    if (imagePath === imgEntrada) return imgEntrada;
+    return `/storage/${imagePath}`;
+};
+
+const imageUrl = computed(() => {
+    return getImageUrl(imagens.value[0]);
+});
+
 </script>

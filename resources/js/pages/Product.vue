@@ -115,7 +115,8 @@
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-2">
-                                <i class="bi bi-person-circle text-info" style="font-size: 3rem;"></i>
+                                <img v-if="ad.user?.image_path" :src="ad.user.image_path" alt="Foto do Anunciante" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;" @error="handleImageError">
+                                <i v-else class="bi bi-person-circle text-info" style="font-size: 3rem;"></i>
                             </div>
                             <div class="col-10">
                                 <h6 class="mb-1">{{ ad.user?.nomeCompleto || 'Nome não informado' }}</h6>
@@ -129,7 +130,7 @@
                                 </p>
                                 <small class="text-muted">
                                     <i class="bi bi-geo-alt me-1"></i>
-                                    Miracema - RJ
+                                    {{ ad.user?.cidade || 'Cidade não informada' }} - {{ ad.user?.uf || 'UF' }}
                                 </small>
                             </div>
                         </div>
@@ -186,6 +187,7 @@ import imgEntrada from '@images/VendIFF.png';
 import App from '@/pages/App.vue';
 import { computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
+import axios from 'axios';
 
 defineOptions({ layout: App });
 
@@ -209,6 +211,9 @@ const props = defineProps<{
             nomeCompleto: string;
             email: string;
             telefone?: string;
+            cidade?: string;
+            uf?: string;
+            image_path?: string;
         };
     };
     relatedAds?: Array<any>;
@@ -300,27 +305,44 @@ const formatDate = (dateString: string) => {
 };
 
 // Função para iniciar chat
-const iniciarChat = () => {
+const iniciarChat = async () => {
     // Verificar se usuário está logado
     if (!props.ad.user?.id) {
         (window as any).showToast?.('Dados do anunciante não encontrados.', 'error');
         return;
     }
     
-    // Redirecionar para página de chat ou criar novo chat
-    router.post('/chat/create', {
-        seller_id: props.ad.user.id,
-        ad_id: props.ad.id
-    }, {
-        onSuccess: (response: any) => {
-            // Redirecionar para o chat criado
-            router.visit(`/chat`);
-        },
-        onError: (errors: any) => {
-            console.error('Erro ao criar chat:', errors);
+<<<<<<< Updated upstream
+    try {
+        const response = await axios.post(route('chat.create'), {
+            seller_id: props.ad.user.id,
+            ad_id: props.ad.id
+        });
+
+        // Se bem-sucedido, redireciona para a página de chat
+        if (response.data.redirect) {
+            router.visit(response.data.redirect);
+            (window as any).showToast?.(response.data.message || 'Chat iniciado com sucesso!', 'success');
+        } else {
+            (window as any).showToast?.('Resposta inesperada do servidor.', 'error');
+        }
+    } catch (error: any) {
+        console.error('Erro ao criar chat:', error);
+        if (error.response && error.response.data && error.response.data.message) {
+            (window as any).showToast?.(error.response.data.message, 'error');
+        }
+        else if (error.response && error.response.data && error.response.data.errors) {
+            // Handle validation errors if any
+            const firstError = Object.values(error.response.data.errors)[0] as string[];
+            (window as any).showToast?.(firstError[0] || 'Erro de validação.', 'error');
+        }
+        else {
             (window as any).showToast?.('Erro ao iniciar conversa. Tente novamente.', 'error');
         }
-    });
+    }
+            (window as any).showToast?.('Erro ao iniciar conversa. Tente novamente.', 'error');
+        }
+    }
 };
 
 // Inicializar carrossel do Bootstrap quando o componente for montado

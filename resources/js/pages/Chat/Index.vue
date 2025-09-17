@@ -16,11 +16,12 @@
           @click="selectChat(chat)"
         >
           <div class="chat-avatar">
-            <i class="bi bi-person-circle fs-3"></i>
+            <img :src="chat.image_path" alt="Avatar" v-if="chat.image_path" class="avatar-image">
+            <i class="bi bi-person-circle fs-3" v-else></i>
           </div>
           <div class="chat-info">
-            <p class="chat-name">{{ chat.name }}</p>
-            <p class="chat-last-message">{{ chat.lastMessage }}</p>
+            <p class="chat-product-name">{{ chat.ad.name }}</p>
+            <p class="chat-user-name">{{ chat.name }}</p>
           </div>
         </li>
       </ul>
@@ -68,16 +69,22 @@
         <p>Abra um chat para exibir aqui</p>
       </div>
     </div>
+    <FinalizationReasonModal
+      :show="showReasonModal"
+      @close="showReasonModal = false"
+      @confirm="confirmFinalization"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick, onMounted } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import App from '@/pages/App.vue';
 import Heading from '@/components/Heading.vue';
 import AdBanner from '@/components/AdBanner.vue';
 import axios from 'axios';
+import FinalizationReasonModal from '@/components/FinalizationReasonModal.vue';
 
 defineOptions({ layout: App });
 
@@ -135,6 +142,7 @@ const formattedChats = computed(() => {
       lastMessage: '', // Será implementado depois
       ad: chat.ad,
       finalizado: chat.finalizado,
+      image_path: otherParticipant?.image_path,
     };
   });
 });
@@ -142,31 +150,95 @@ const formattedChats = computed(() => {
 const selectedChat = ref(null);
 const messageInput = ref('');
 const messages = ref<Message[]>([]);
+const showReasonModal = ref(false);
+const pollingIntervalId = ref<number | null>(null);
+const lastMessageId = ref<number | null>(null);
 
 const orderedMessages = computed(() => {
   return [...messages.value].reverse();
 });
 
-const fetchMessages = async () => {
+const scrollToBottom = () => {
+  const messagesBody = document.querySelector('.chat-messages-body');
+  if (messagesBody) {
+    messagesBody.scrollTop = messagesBody.scrollHeight;
+  }
+};
+
+const fetchMessages = async (appendOnly: boolean = false) => {
   if (!selectedChat.value) {
     messages.value = [];
     return;
   }
   try {
-    const response = await axios.get(route('chat.messages.get', selectedChat.value.id));
-    const fetchedMessages = response.data;
-
-    if (props.systemMessage) {
-      fetchedMessages.unshift(props.systemMessage);
+    let url = route('chat.messages.get', selectedChat.value.id);
+    if (appendOnly && lastMessageId.value) {
+      url += `?last_message_id=${lastMessageId.value}`;
     }
 
-    messages.value = fetchedMessages;
-    await nextTick();
-    scrollToBottom();
+    const response = await axios.get(url);
+    const fetchedMessages = response.data;
+
+    if (fetchedMessages.length > 0) {
+      // If not appendOnly, replace all messages (initial load)
+      if (!appendOnly) {
+        messages.value = fetchedMessages;
+        if (props.systemMessage) {
+          messages.value.unshift(props.systemMessage);
+        }
+      } else {
+        // Append new messages, ensuring no duplicates and maintaining order
+        const newMessages = fetchedMessages.filter(
+          (newMessage: Message) => !messages.value.some(existingMessage => existingMessage.id === newMessage.id)
+        );
+        messages.value.push(...newMessages);
+        messages.value.sort((a, b) => a.id - b.id); // Ensure correct order after appending
+      }
+
+      // Update lastMessageId
+      lastMessageId.value = messages.value[messages.value.length - 1]?.id || null;
+
+      await nextTick();
+      scrollToBottom();
+    } else if (!appendOnly && props.systemMessage) {
+      // If no messages and not appendOnly, just show system message
+      messages.value = [props.systemMessage];
+      lastMessageId.value = null;
+      await nextTick();
+      scrollToBottom();
+    }
   } catch (error) {
     console.error('Error fetching messages:', error);
   }
 };
+
+const POLLING_INTERVAL = 3000; // Poll every 3 seconds
+
+const startPolling = () => {
+  if (pollingIntervalId.value) {
+    clearInterval(pollingIntervalId.value);
+  }
+  pollingIntervalId.value = setInterval(() => {
+    fetchMessages(true); // Fetch only new messages
+  }, POLLING_INTERVAL);
+};
+
+const stopPolling = () => {
+  if (pollingIntervalId.value) {
+    clearInterval(pollingIntervalId.value);
+    pollingIntervalId.value = null;
+  }
+};
+
+watch(selectedChat, async (newChat) => {
+  stopPolling(); // Stop any existing polling
+  if (newChat) {
+    messages.value = []; // Clear messages when switching chats
+    lastMessageId.value = null; // Reset lastMessageId
+    await fetchMessages(); // Initial fetch of all messages for the new chat
+    startPolling(); // Start polling for the new chat
+  }
+}, { immediate: true });
 
 const sendMessage = async () => {
   if (!messageInput.value.trim() || !selectedChat.value) {
@@ -179,6 +251,8 @@ const sendMessage = async () => {
       content: messageInput.value,
     });
     messages.value.push(response.data);
+    // Update lastMessageId with the newly sent message's ID
+    lastMessageId.value = response.data.id;
     messageInput.value = '';
     await nextTick();
     scrollToBottom();
@@ -187,25 +261,12 @@ const sendMessage = async () => {
   }
 };
 
-const scrollToBottom = () => {
-  const messagesBody = document.querySelector('.chat-messages-body');
-  if (messagesBody) {
-    messagesBody.scrollTop = messagesBody.scrollHeight;
-  }
-};
-
-watch(selectedChat, (newChat) => {
-  if (newChat) {
-    fetchMessages();
-  }
-}, { immediate: true });
-
 const selectChat = (chat) => {
   const fullChatData = props.chats.find(c => c.id === chat.id);
   selectedChat.value = fullChatData;
 };
 
-onMounted(() => {
+onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const chatId = urlParams.get('chat_id');
 
@@ -213,8 +274,13 @@ onMounted(() => {
     const chatToSelect = props.chats.find(chat => chat.id === parseInt(chatId, 10));
     if (chatToSelect) {
       selectedChat.value = chatToSelect;
+      // The watch handler will take care of fetching and starting polling
     }
   }
+});
+
+onUnmounted(() => {
+  stopPolling();
 });
 
 const viewAd = () => {
@@ -231,23 +297,39 @@ const finalizeNegotiation = async () => {
     message: 'Tem certeza que deseja finalizar esta negociação e marcar o item como vendido?\n\nIsso desativará o anúncio e todos os outros chats relacionados a ele.',
     confirmText: 'Sim, Finalizar',
     cancelText: 'Cancelar',
-    onConfirm: async () => {
-      try {
-        const response = await axios.post(route('chat.finalize', selectedChat.value.id));
-        if (response.data.chat) {
-          selectedChat.value.finalizado = response.data.chat.finalizado;
-          fetchMessages(); // Re-fetch messages to show the system message
-        }
-      } catch (error) {
-        console.error('Error finalizing negotiation:', error);
-        (window as any).showToast?.('Ocorreu um erro ao tentar finalizar a negociação.', 'error');
-      }
+    onConfirm: () => {
+      showReasonModal.value = true;
     }
   });
+};
+
+const confirmFinalization = async (reason: string) => {
+  showReasonModal.value = false;
+  if (!selectedChat.value) return;
+
+  try {
+    const response = await axios.post(route('chat.finalize', selectedChat.value.id), {
+      finalization_reason: reason,
+    });
+    if (response.data.chat) {
+      selectedChat.value.finalizado = response.data.chat.finalizado;
+      fetchMessages(); // Re-fetch messages to show the system message
+    }
+  } catch (error) {
+    console.error('Error finalizing negotiation:', error);
+    (window as any).showToast?.('Ocorreu um erro ao tentar finalizar a negociação.', 'error');
+  }
 };
 </script>
 
 <style scoped>
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 .chat-container {
   display: flex;
   height: calc(100vh - 118px); /* Adjust based on Navbar and Footer height */
@@ -313,15 +395,23 @@ const finalizeNegotiation = async () => {
   flex-grow: 1;
 }
 
-.chat-name {
+.chat-product-name {
   font-weight: bold;
+  font-size: 1rem;
+  color: black;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.chat-last-message {
-  font-size: 0.9rem;
-  color: #333;
+.chat-user-name {
+  font-size: 0.8rem;
+  color: gray;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chat-content {
