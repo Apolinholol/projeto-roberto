@@ -312,8 +312,7 @@ const iniciarChat = async () => {
         return;
     }
     
-<<<<<<< Updated upstream
-    try {
+try {
         const response = await axios.post(route('chat.create'), {
             seller_id: props.ad.user.id,
             ad_id: props.ad.id
@@ -337,9 +336,6 @@ const iniciarChat = async () => {
             (window as any).showToast?.(firstError[0] || 'Erro de validação.', 'error');
         }
         else {
-            (window as any).showToast?.('Erro ao iniciar conversa. Tente novamente.', 'error');
-        }
-    }
             (window as any).showToast?.('Erro ao iniciar conversa. Tente novamente.', 'error');
         }
     }
