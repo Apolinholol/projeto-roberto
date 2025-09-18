@@ -176,7 +176,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="card-footer d-flex justify-content-center gap-1 py-1"
+                                    <div class="card-footer d-flex justify-content-center gap-1 py-1" v-if="props.anunciante == undefined"
                                         style="background-color: #002d17; font-size: 0.75rem;">
                                         <button class="btn btn-sm btn-warning"
                                             style="font-size: 0.7rem; padding: 2px 6px;" title="Editar"
@@ -244,7 +244,7 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
-    // console.log(props.anunciante);
+    console.log(props.anunciante);
 
     if(props.anunciante?.id > 0) {
         state.usuario = props.anunciante;
