@@ -3,14 +3,14 @@
         <div class="row">
             <!-- Voltar -->
             <div class="col-12 mb-3">
-                <button @click="$inertia.visit('/')" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left"></i> Voltar aos anúncios
+                <button @click="$inertia.visit('/')" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i> Voltar aos anúncios
                 </button>
             </div>
 
             <!-- Carrossel de Fotos -->
             <div class="col-lg-6 mb-4">
-                <div class="card h-100">
+                <div class="card h-100" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e9ecef;">
                     
                     <!-- Carrossel -->
                     <div id="productCarousel" class="carousel slide">
@@ -36,7 +36,7 @@
                                     :src="getImageUrl(imagem)" 
                                     class="d-block w-100"
                                     :alt="`Foto ${index + 1} do produto`"
-                                    style="max-height: 600px; object-fit: cover;"
+                                    style="max-height: 600px; object-fit: cover; border-radius: 15px 15px 0 0;"
                                     @error="handleImageError">
                             </div>
                         </div>
@@ -53,13 +53,13 @@
                     </div>
 
                     <!-- Miniatura das fotos -->
-                    <div v-if="imagens.length > 1" class="card-footer">
+                    <div v-if="imagens.length > 1" class="card-footer" style="background: linear-gradient(45deg, #cff8e4 0%, #e8fdf0 100%); border-radius: 0 0 15px 15px;">
                         <div class="row g-2">
                             <div v-for="(imagem, index) in imagens" :key="index" class="col-3">
                                 <img 
                                     :src="getImageUrl(imagem)" 
                                     class="img-thumbnail cursor-pointer"
-                                    style="height: auto; object-fit: cover; width: 100%;"
+                                    style="height: auto; object-fit: cover; width: 100%; border: 2px solid #cff8e4; border-radius: 8px;"
                                     @click="goToSlide(index)"
                                     @error="handleImageError">
                             </div>
@@ -71,20 +71,20 @@
             <!-- Informações do Produto -->
             <div class="col-lg-6">
                 <!-- Título e Preço -->
-                <div class="card mb-3">
+                <div class="card mb-3" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e9ecef;">
                     <div class="card-body">
-                        <h1 class="card-title h3 text-primary mb-3">{{ ad.name }}</h1>
+                        <h1 class="card-title questrial-font fw-bold mb-3" style="color: #002D17; font-size: 2rem;">{{ ad.name }}</h1>
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h2 class="text-success mb-0">R$ {{ formatPrice(ad.price) }}</h2>
-                            <span class="badge bg-primary fs-6">{{ ad.category?.name || 'Categoria não definida' }}</span>
+                            <h2 class="questrial-font mb-0" style="color: #006B3C; font-size: 1.8rem;">R$ {{ formatPrice(ad.price) }}</h2>
+                            <span class="badge fs-6" style="background: linear-gradient(135deg, #002D17 0%, #004D2A 100%); color: white; border-radius: 25px; padding: 8px 16px;">{{ ad.category?.name || 'Categoria não definida' }}</span>
                         </div>
-                        <div class="d-flex justify-content-between text-muted">
+                        <div class="d-flex justify-content-between poppins-font" style="color: #666;">
                             <small>
-                                <i class="bi bi-box-seam me-1"></i>
+                                <i class="bi bi-box-seam me-1" style="color: #002D17;"></i>
                                 Estoque: {{ ad.stock }} unidades
                             </small>
                             <small>
-                                <i class="bi bi-calendar3 me-1"></i>
+                                <i class="bi bi-calendar3 me-1" style="color: #002D17;"></i>
                                 {{ formatDate(ad.created_at) }}
                             </small>
                         </div>
@@ -92,22 +92,22 @@
                 </div>
 
                 <!-- Descrição -->
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h5 class="mb-0">
+                <div class="card mb-3" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e9ecef;">
+                    <div class="card-header" style="background: linear-gradient(135deg, #002D17 0%, #004D2A 100%); color: white; border-radius: 15px 15px 0 0;">
+                        <h5 class="mb-0 questrial-font fw-bold">
                             <i class="bi bi-file-text me-2"></i>
                             Descrição do Produto
                         </h5>
                     </div>
                     <div class="card-body">
-                        <p class="card-text" style="white-space: pre-line;">{{ ad.description }}</p>
+                        <p class="card-text poppins-font" style="white-space: pre-line; color: #333; line-height: 1.6;">{{ ad.description }}</p>
                     </div>
                 </div>
 
                 <!-- Dados do Anunciante -->
-                <div class="card mb-3">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0">
+                <div class="card mb-3" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e9ecef;">
+                    <div class="card-header" style="background: linear-gradient(135deg, #cff8e4 0%, #e8fdf0 100%); color: #002D17; border-radius: 15px 15px 0 0;">
+                        <h5 class="mb-0 questrial-font fw-bold">
                             <i class="bi bi-person-circle me-2"></i>
                             Dados do Anunciante
                         </h5>
@@ -115,21 +115,26 @@
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-2">
-                                <img v-if="ad.user?.image_path" :src="ad.user.image_path" alt="Foto do Anunciante" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;" @error="handleImageError">
-                                <i v-else class="bi bi-person-circle text-info" style="font-size: 3rem;"></i>
+                                <img v-if="ad.user?.image_path" 
+                                     :src="ad.user.image_path" 
+                                     alt="Foto do Anunciante" 
+                                     class="rounded-circle" 
+                                     style="width: 60px; height: 60px; object-fit: cover; border: 3px solid #cff8e4;" 
+                                     @error="handleImageError">
+                                <i v-else class="bi bi-person-circle" style="font-size: 3rem; color: #002D17;"></i>
                             </div>
                             <div class="col-10">
-                                <h6 class="mb-1">{{ ad.user?.nomeCompleto || 'Nome não informado' }}</h6>
-                                <p class="text-muted mb-1">
-                                    <i class="bi bi-envelope me-1"></i>
+                                <h6 class="mb-1 questrial-font fw-bold" style="color: #002D17;">{{ ad.user?.nomeCompleto || 'Nome não informado' }}</h6>
+                                <p class="mb-1 poppins-font" style="color: #666;">
+                                    <i class="bi bi-envelope me-1" style="color: #002D17;"></i>
                                     {{ ad.user?.email || 'Email não informado' }}
                                 </p>
-                                <p class="text-muted mb-1" v-if="ad.user?.telefone">
-                                    <i class="bi bi-telephone me-1"></i>
+                                <p class="mb-1 poppins-font" v-if="ad.user?.telefone" style="color: #666;">
+                                    <i class="bi bi-telephone me-1" style="color: #002D17;"></i>
                                     {{ ad.user.telefone }}
                                 </p>
-                                <small class="text-muted">
-                                    <i class="bi bi-geo-alt me-1"></i>
+                                <small class="poppins-font" style="color: #666;">
+                                    <i class="bi bi-geo-alt me-1" style="color: #002D17;"></i>
                                     {{ ad.user?.cidade || 'Cidade não informada' }} - {{ ad.user?.uf || 'UF' }}
                                 </small>
                             </div>
@@ -138,7 +143,10 @@
                             <div class="col-12">
                                 <button 
                                     @click="verPerfilUsuario" 
-                                    class="btn btn-outline-info w-100">
+                                    class="btn w-100"
+                                    style="background: linear-gradient(135deg, #002D17 0%, #004D2A 100%); color: white; border: none; border-radius: 25px; transition: all 0.3s ease;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 45, 23, 0.3)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                                     <i class="bi bi-person-lines-fill me-2"></i>
                                     Ver Perfil do Usuário
                                 </button>
@@ -148,18 +156,18 @@
                 </div>
 
                 <!-- Botão de Chat -->
-                <div class="card">
+                <div class="card" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e9ecef;">
                     <div class="card-body text-center">
                         <button 
                             @click="iniciarChat" 
-                            class="btn btn-lg w-100"
-                            :class="ad.is_active ? 'btn-success' : 'btn-secondary'"
+                            class="btn btn-lg w-100 questrial-font fw-bold"
+                            :class="ad.is_active ? 'btn-chat-active' : 'btn-chat-disabled'"
                             :disabled="!ad.is_active"
-                            style="border-radius: 30px;">
+                            style="border-radius: 30px; padding: 15px; font-size: 1.1rem; transition: all 0.3s ease;">
                             <i class="bi bi-chat-dots me-2"></i>
                             {{ ad.is_active ? 'Conversar com o Anunciante' : 'Anúncio Desativado' }}
                         </button>
-                        <small class="text-muted d-block mt-2">
+                        <small class="poppins-font d-block mt-2" style="color: #666;">
                             {{ ad.is_active ? 'Tire suas dúvidas e negocie diretamente com o vendedor' : 'Este anúncio foi desativado pelo vendedor' }}
                         </small>
                     </div>
@@ -170,19 +178,23 @@
         <!-- Anúncios Relacionados (opcional) -->
         <div class="row mt-5" v-if="relatedAds && relatedAds.length > 0">
             <div class="col-12">
-                <h3 class="mb-4">Anúncios Relacionados</h3>
+                <h3 class="mb-4 questrial-font fw-bold" style="color: #002D17; border-bottom: 2px solid #cff8e4; padding-bottom: 10px;">Anúncios Relacionados</h3>
                 <div class="row g-3">
                     <div v-for="relatedAd in relatedAds" :key="relatedAd.id" class="col-md-3">
-                        <div class="card h-100">
+                        <div class="card h-100" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e9ecef; transition: all 0.3s ease;">
                             <img 
                                 :src="getPrimeiraImagem(relatedAd)" 
                                 class="card-img-top"
-                                style="height: 150px; object-fit: cover;"
+                                style="height: 150px; object-fit: cover; border-radius: 15px 15px 0 0;"
                                 @error="handleImageError">
                             <div class="card-body text-center">
-                                <h6 class="card-title text-truncate">{{ relatedAd.name }}</h6>
-                                <p class="card-text text-success fw-bold">R$ {{ formatPrice(relatedAd.price) }}</p>
-                                <button @click="$inertia.visit(`/product/${relatedAd.id}`)" class="btn btn-outline-primary btn-sm">
+                                <h6 class="card-title text-truncate questrial-font fw-bold" style="color: #002D17;">{{ relatedAd.name }}</h6>
+                                <p class="card-text questrial-font fw-bold mb-3" style="color: #006B3C; font-size: 1.1rem;">R$ {{ formatPrice(relatedAd.price) }}</p>
+                                <button @click="$inertia.visit(`/product/${relatedAd.id}`)" 
+                                        class="btn btn-sm w-100 poppins-font"
+                                        style="background: linear-gradient(135deg, #002D17 0%, #004D2A 100%); color: white; border: none; border-radius: 25px; transition: all 0.3s ease;"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 45, 23, 0.3)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                                     Ver Detalhes
                                 </button>
                             </div>
@@ -389,35 +401,35 @@ onMounted(() => {
 }
 
 .carousel-item img {
-    border-radius: 0.375rem;
+    border-radius: 15px 15px 0 0;
 }
 
-.card-header {
-    background: linear-gradient(to right, #007bff, #0056b3) !important;
-}
-
-.bg-info {
-    background: linear-gradient(to right, #17a2b8, #138496) !important;
-}
-
-.btn-success {
-    background: linear-gradient(to right, #28a745, #1e7e34);
+.btn-chat-active {
+    background: linear-gradient(135deg, #006B3C 0%, #004D2A 100%);
+    color: white;
     border: none;
 }
 
-.btn-success:hover {
-    background: linear-gradient(to right, #218838, #1c7430);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+.btn-chat-active:hover {
+    background: linear-gradient(135deg, #005A31 0%, #003D21 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 107, 60, 0.3);
+}
+
+.btn-chat-disabled {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    border: none;
 }
 
 .card {
     transition: all 0.3s ease;
-    border: 1px solid #dee2e6;
+    border: 1px solid #e9ecef;
 }
 
 .card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
 .img-thumbnail {
@@ -426,6 +438,15 @@ onMounted(() => {
 
 .img-thumbnail:hover {
     transform: scale(1.05);
-    border-color: #007bff;
+    border-color: #002D17;
+}
+
+/* Adicionar classes de fonte globais caso não estejam disponíveis */
+.questrial-font {
+    font-family: 'Questrial', sans-serif;
+}
+
+.poppins-font {
+    font-family: 'Poppins', sans-serif;
 }
 </style>

@@ -49,7 +49,8 @@ Route::get('/', function (Request $request) {
             break;
     }
 
-    $ads = $ads->get();
+    // Implementar paginação com 20 anúncios por página
+    $ads = $ads->paginate(20)->withQueryString();
     $user = Auth::user();
 
     return Inertia::render('Home', [

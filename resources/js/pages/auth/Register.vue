@@ -20,7 +20,7 @@ const form = useForm({
    cpf: '',
    uf:'',
    cidade:'',
-   foto: null as File | null,
+   foto: null as string | null,
 });
 
 const state = ({
@@ -134,20 +134,21 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthBase title="Crie sua conta" description="Entre com seus dados para começar" style="background-color:rgb(240, 241, 240)">
+    <AuthBase title="Crie sua conta" description="Entre com seus dados para começar">
         <Head title="Register" />
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
 
                 <div class="mb-3 d-flex align-items-center flex-column">
-                    <label for="foto" class="form-label"><strong>Foto de Perfil:</strong></label>
+                    <label for="foto" class="form-label questrial-font" style="color: white; font-weight: bold;"><strong>Foto de Perfil:</strong></label>
                     <input 
                         type="file" 
                         class="form-control" 
                         id="foto"
                         accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                         @change="handleFotoUpload"
+                        style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 8px; font-family: 'Poppins', sans-serif; color: #002D17;"
                     />
                 
                     <div v-if="previewFoto" class="mt-2">
@@ -156,36 +157,41 @@ const submit = () => {
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="nomeCompleto">Nome Completo</Label>
-                    <Input id="nomeCompleto" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.nomeCompleto" placeholder="Nome completo" />
+                    <Label for="nomeCompleto" class="questrial-font" style="color: white; font-weight: bold;">Nome Completo</Label>
+                    <Input id="nomeCompleto" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.nomeCompleto" placeholder="Nome completo" 
+                           style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif;" />
                     <InputError :message="form.errors.nomeCompleto" />
                 </div>
 
                 
                 <div class="grid gap-2">
-                    <Label for="nomeUsuario">Nome de Usuário</Label>
-                    <Input id="nomeUsuario" type="text" required :tabindex="2" autocomplete="username" v-model="form.nomeUsuario" placeholder="Nome de Usuário" />
+                    <Label for="nomeUsuario" class="questrial-font" style="color: white; font-weight: bold;">Nome de Usuário</Label>
+                    <Input id="nomeUsuario" type="text" required :tabindex="2" autocomplete="username" v-model="form.nomeUsuario" placeholder="Nome de Usuário" 
+                           style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif;" />
                     <InputError :message="form.errors.nomeUsuario" />
                 </div>
 
                 
                 <div class="grid gap-2">
-                    <Label for="cpf">CPF</Label>
+                    <Label for="cpf" class="questrial-font" style="color: white; font-weight: bold;">CPF</Label>
                     <Input id="cpf" type="text" required :tabindex="3" autocomplete="off" v-model="form.cpf" placeholder="CPF"  
-                    maxLength="14" />
+                    maxLength="14" style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif;" />
                     <InputError :message="cpfError || form.errors.cpf" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="cidade">Cidade</Label>
-                    <Input id="cidade" type="text" required :tabindex="3" autocomplete="off" v-model="form.cidade" placeholder="Cidade" />
+                    <Label for="cidade" class="questrial-font" style="color: white; font-weight: bold;">Cidade</Label>
+                    <Input id="cidade" type="text" required :tabindex="3" autocomplete="off" v-model="form.cidade" placeholder="Cidade" 
+                           style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif;" />
                     <InputError :message="form.errors.cidade" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="UF">UF</Label>
-                    <select class="form-select" v-model="form.uf" style="background-color: rgb(4, 159, 85);" placeholder="Unidade Federativa">
-                        <option v-for="UFdesc,index in state.lstUFdesc" :key="'uf'+ index" :value="state.lstUF[index]">
+                    <Label for="UF" class="questrial-font" style="color: white; font-weight: bold;">UF</Label>
+                    <select class="form-select poppins-font" v-model="form.uf" placeholder="Unidade Federativa"
+                            style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; color: #002D17; font-size: 14px;">
+                        <option value="" disabled selected style="color: #999;">Selecione uma UF</option>
+                        <option v-for="UFdesc,index in state.lstUFdesc" :key="'uf'+ index" :value="state.lstUF[index]" style="color: #002D17;">
                             {{ UFdesc }}
                         </option>
                     </select>
@@ -194,19 +200,21 @@ const submit = () => {
 
                 
                 <div class="grid gap-2">
-                    <Label for="telefone">Telefone</Label>
-                    <Input id="telefone" type="text" required :tabindex="4" autocomplete="tel" v-model="form.telefone" placeholder="Telefone" maxLength="15" />
+                    <Label for="telefone" class="questrial-font" style="color: white; font-weight: bold;">Telefone</Label>
+                    <Input id="telefone" type="text" required :tabindex="4" autocomplete="tel" v-model="form.telefone" placeholder="Telefone" maxLength="15" 
+                           style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif;" />
                     <InputError :message="form.errors.telefone" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Email</Label>
-                    <Input id="email" type="email" required :tabindex="5" autocomplete="email" v-model="form.email" placeholder="email@example.com" />
+                    <Label for="email" class="questrial-font" style="color: white; font-weight: bold;">Email</Label>
+                    <Input id="email" type="email" required :tabindex="5" autocomplete="email" v-model="form.email" placeholder="email@example.com" 
+                           style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif;" />
                     <InputError :message="form.errors.email" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Senha</Label>
+                    <Label for="password" class="questrial-font" style="color: white; font-weight: bold;">Senha</Label>
                     <Input
                         id="password"
                         type="password"
@@ -215,12 +223,13 @@ const submit = () => {
                         autocomplete="new-password"
                         v-model="form.password"
                         placeholder="Senha"
+                        style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif;"
                     />
                     <InputError :message="form.errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirmar Senha</Label>
+                    <Label for="password_confirmation" class="questrial-font" style="color: white; font-weight: bold;">Confirmar Senha</Label>
                     <Input
                         id="password_confirmation"
                         type="password"
@@ -229,20 +238,23 @@ const submit = () => {
                         autocomplete="new-password"
                         v-model="form.password_confirmation"
                         placeholder="Confirmar senha"
+                        style="background: white; border: 2px solid #cff8e4; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif;"
                     />
                     <InputError :message="form.errors.password_confirmation" />
                 </div>
 
-                <Button type="submit" class="mt-2 w-full" tabindex="8" :disabled="form.processing"
-                style="background-color: rgb(0, 45, 23)!important; color: white;">
+                <Button type="submit" class="mt-2 w-full questrial-font" tabindex="8" :disabled="form.processing"
+                style="background: linear-gradient(135deg, #cff8e4 0%, #e8fdf0 100%); color: #002D17; font-weight: bold; border: none; border-radius: 12px; padding: 12px; font-size: 16px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(207, 248, 228, 0.3);"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(207, 248, 228, 0.4)'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(207, 248, 228, 0.3)'">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Criar conta
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground" style="color: black;">
+            <div class="text-center text-sm poppins-font" style="color: #cff8e4;">
                 Já tem uma conta?
-                <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="6">Faça login</TextLink>
+                <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="6" style="color: white; font-weight: bold; text-decoration: underline;">Faça login</TextLink>
             </div>
         </form>
     </AuthBase>
@@ -255,7 +267,8 @@ const submit = () => {
     border-radius: 50%;
     object-fit: cover;
     object-position: center;
-    border: 2px solid #049f55;
+    border: 3px solid #cff8e4;
     background-color: #f8f9fa;
+    box-shadow: 0 4px 15px rgba(207, 248, 228, 0.3);
 }
 </style>

@@ -130,7 +130,7 @@
                             </h6>
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="poppins-font" style="color: #004D2A;">Total de produtos:</small>
-                                <span class="badge" style="background-color: #002D17; font-size: 0.8rem;">{{ filteredAds.length }}</span>
+                                <span class="badge" style="background-color: #002D17; font-size: 0.8rem;">{{ props.ads.total }}</span>
                             </div>
                         </div>
                     </div>
@@ -144,12 +144,12 @@
                             Produtos Disponíveis
                         </h3>
                         <span class="badge badge-lg poppins-font" style="background-color: #cff8e4; color: #002D17; font-size: 0.9rem; padding: 8px 15px; border-radius: 20px;">
-                            {{ filteredAds.length }} produto{{ filteredAds.length !== 1 ? 's' : '' }} encontrado{{ filteredAds.length !== 1 ? 's' : '' }}
+                            {{ props.ads.total }} produto{{ props.ads.total !== 1 ? 's' : '' }} encontrado{{ props.ads.total !== 1 ? 's' : '' }}
                         </span>
                     </div>
 
                     <!-- Mensagem quando não há produtos -->
-                    <div v-if="!filteredAds || filteredAds.length === 0" class="text-center py-5">
+                    <div v-if="!props.ads.data || props.ads.data.length === 0" class="text-center py-5">
                         <div class="empty-state" style="background: white; border-radius: 15px; padding: 3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                             <i class="bi bi-search" style="font-size: 4rem; color: #cff8e4; margin-bottom: 1rem;"></i>
                             <h4 class="questrial-font fw-bold" style="color: #002D17;">Nenhum produto encontrado</h4>
@@ -164,7 +164,7 @@
 
                     <!-- Grid de Cards -->
                     <div v-else class="row g-4">
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 col-xxl-2" v-for="ad in filteredAds" :key="ad.id">
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 col-xxl-2" v-for="ad in props.ads.data" :key="ad.id">
                             <div class="card d-flex flex-column h-100 cursor-pointer"
                                 style="width: 220px; height: 220px; background-color:#049f55; border-radius: 18px; overflow: hidden;"
                                 @click="$inertia.visit(`/product/${ad.id}`)">
@@ -188,6 +188,65 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Componente de Paginação -->
+                    <div v-if="props.ads.last_page > 1" class="d-flex justify-content-center mt-5">
+                        <nav aria-label="Navegação de páginas">
+                            <ul class="pagination pagination-lg">
+                                <!-- Botão Anterior -->
+                                <li class="page-item" :class="{ 'disabled': props.ads.current_page === 1 }">
+                                    <a 
+                                        class="page-link" 
+                                        href="#" 
+                                        @click.prevent="goToPage(props.ads.current_page - 1)"
+                                        style="color: #002D17; border-color: #cff8e4;"
+                                    >
+                                        <i class="bi bi-chevron-left"></i>
+                                        Anterior
+                                    </a>
+                                </li>
+
+                                <!-- Números das páginas -->
+                                <li 
+                                    v-for="link in props.ads.links.slice(1, -1)" 
+                                    :key="link.label"
+                                    class="page-item" 
+                                    :class="{ 'active': link.active }"
+                                >
+                                    <a 
+                                        class="page-link" 
+                                        href="#" 
+                                        @click.prevent="goToPage(parseInt(link.label))"
+                                        :style="link.active ? 
+                                            'background-color: #002D17; border-color: #002D17; color: white;' : 
+                                            'color: #002D17; border-color: #cff8e4;'"
+                                    >
+                                        {{ link.label }}
+                                    </a>
+                                </li>
+
+                                <!-- Botão Próximo -->
+                                <li class="page-item" :class="{ 'disabled': props.ads.current_page === props.ads.last_page }">
+                                    <a 
+                                        class="page-link" 
+                                        href="#" 
+                                        @click.prevent="goToPage(props.ads.current_page + 1)"
+                                        style="color: #002D17; border-color: #cff8e4;"
+                                    >
+                                        Próximo
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Informações da paginação -->
+                    <div class="text-center mt-3">
+                        <small class="text-muted poppins-font">
+                            Mostrando {{ props.ads.from }} até {{ props.ads.to }} de {{ props.ads.total }} produtos
+                        </small>
                     </div>
                 </div>
             </div>
@@ -263,11 +322,23 @@ import { Anuncio, Categoria } from '@/types/globals';
 import { router } from "@inertiajs/vue3";
 
 const props = defineProps<{
-    ads: Anuncio[];
+    ads: {
+        data: Anuncio[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number;
+        to: number;
+        links: Array<{
+            url: string | null;
+            label: string;
+            active: boolean;
+        }>;
+    };
     filtro: {
         pesquisar?: string;
         orderBy?: string;
-
     };
     categorias: Categoria[];
 }>();
@@ -310,10 +381,10 @@ const getAdCategoriaName = (ad: any): string | null => {
 };
 
 const filteredAds = computed(() => {
-    if (!props.ads) return [];
+    if (!props.ads?.data) return [];
 
     if (state.categoriaId) {
-        return props.ads.filter(ad => {
+        return props.ads.data.filter(ad => {
             if (ad.categoria_id && Number(ad.categoria_id) === Number(state.categoriaId)) return true;
             if (ad.category_id && Number(ad.category_id) === Number(state.categoriaId)) return true;
             if (ad.category && typeof ad.category === 'object' && ad.category.id && Number(ad.category.id) === Number(state.categoriaId)) return true;
@@ -326,13 +397,13 @@ const filteredAds = computed(() => {
     }
 
     if (state.categoriaSelecionada) {
-        return props.ads.filter(ad => {
+        return props.ads.data.filter(ad => {
             const nome = getAdCategoriaName(ad);
             return nome && nome.toLowerCase() === state.categoriaSelecionada!.toLowerCase();
         });
     }
 
-    return props.ads;
+    return props.ads.data;
 });
 
 const testToasts = () => {
@@ -403,6 +474,20 @@ const handleImageError = (event: Event) => {
     }
 };
 
+// Função para navegar entre páginas
+const goToPage = (page: number) => {
+    if (page < 1 || page > props.ads.last_page) return;
+    
+    router.get("/", {
+        page: page,
+        inpProcurar: props.filtro?.pesquisar,
+        orderBy: state.filtro,
+        inpCategoriaId: state.categoriaId
+    }, {
+        preserveState: true,
+        replace: false
+    });
+};
 
 watch(() => [state.filtro, state.categoriaId], ([newFiltro, newCategoriaId], [oldFiltro, oldCategoriaId]) => {
     router.get("/", {
@@ -629,5 +714,38 @@ watch(() => [state.filtro, state.categoriaId], ([newFiltro, newCategoriaId], [ol
 .card .card-text,
 .card .card-footer p {
     color: white !important;
+}
+
+/* Estilos da paginação */
+.pagination .page-link {
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border-radius: 8px;
+    margin: 0 2px;
+}
+
+.pagination .page-link:hover {
+    background-color: #cff8e4;
+    border-color: #002D17;
+    color: #002D17;
+    transform: translateY(-1px);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #002D17;
+    border-color: #002D17;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 45, 23, 0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pagination .page-item.disabled .page-link:hover {
+    background-color: transparent;
+    transform: none;
 }
 </style>
