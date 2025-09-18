@@ -18,6 +18,8 @@ const props = defineProps<{
         totalAds: number
         totalCategories: number
         totalUsers: number
+        finalizationReasons: Array<{ reason: string; count: number }>
+        totalFinalized: number
     }
 }>()
 
@@ -216,7 +218,7 @@ onMounted(() => {
             </div>
 
             <!-- Tabela de detalhes por categoria -->
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Detalhes por Categoria</h5>
                 </div>
@@ -237,6 +239,39 @@ onMounted(() => {
                                     <td>
                                         <span class="badge bg-success">
                                             {{ metrics.totalAds > 0 ? Math.round((category.count / metrics.totalAds) * 100) : 0 }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+          
+
+            <!-- Tabela de detalhes por motivo de finalização -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Detalhes por Motivo de Finalização</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Motivo da Finalização</th>
+                                    <th>Quantidade</th>
+                                    <th>Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="reason in metrics.finalizationReasons" :key="reason.reason">
+                                    <td>{{ reason.reason }}</td>
+                                    <td>{{ reason.count }}</td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            {{ metrics.totalFinalized > 0 ? Math.round((reason.count / metrics.totalFinalized) * 100) : 0 }}%
                                         </span>
                                     </td>
                                 </tr>
