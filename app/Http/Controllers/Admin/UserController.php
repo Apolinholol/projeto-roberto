@@ -9,10 +9,19 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = User::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('nomeUsuario', 'like', "%{$search}%");
+        }
+
+        $users = $query->paginate(10);
+
         return Inertia::render('Admin/User/Index', [
-            'users' => User::all()->map(function ($user) {
+            'users' => $users->through(function ($user) {
                 return [
                     'id' => $user->id,
                     'nameCompleto' => $user->nameCompleto,
@@ -26,6 +35,7 @@ class UserController extends Controller
                     'created_at' => $user->created_at->toFormattedDateString(),
                 ];
             }),
+            'filters' => $request->only(['search']),
         ]);
     }
 

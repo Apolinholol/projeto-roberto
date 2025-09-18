@@ -1,18 +1,35 @@
 <script setup lang="ts">
 import App from '@/pages/App.vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import { type NavItem } from '@/types';
 import { ShieldCheck, Users, Package, Tag, BarChart3 } from 'lucide-vue-next';
-
+import { ref, watch } from 'vue';
+import Pagination from '@/components/Pagination.vue';
 
 defineOptions({ layout: App })
 
-defineProps<{
+const props = defineProps<{
     categories: {
-        id: number
-        name: string
-    }[]
-}>()
+        data: any[];
+        links: any[];
+    };
+    filters: {
+        search: string;
+    };
+}>();
+
+const search = ref(props.filters.search);
+
+watch(search, (value) => {
+    router.get(
+        route('admin.categories.index'),
+        { search: value },
+        {
+            preserveState: true,
+            replace: true,
+        }
+    );
+});
 
 const mainNavItems: NavItem[] = [
     {
@@ -71,6 +88,9 @@ const mainNavItems: NavItem[] = [
                     </Link>
                 </div>
             </div>
+            <div class="mt-4">
+                <input v-model="search" type="text" placeholder="Buscar por nome..." class="form-control" />
+            </div>
             <div class="mt-8 flow-root">
                 <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -84,7 +104,7 @@ const mainNavItems: NavItem[] = [
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <tr v-for="category in categories" :key="category.id">
+                                <tr v-for="category in categories.data" :key="category.id">
                                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">{{ category.name }}</td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                         <div class="flex items-center justify-end gap-x-2">
@@ -95,6 +115,7 @@ const mainNavItems: NavItem[] = [
                                 </tr>
                             </tbody>
                         </table>
+                        <Pagination :links="categories.links" class="mt-6" />
                     </div>
                 </div>
             </div>

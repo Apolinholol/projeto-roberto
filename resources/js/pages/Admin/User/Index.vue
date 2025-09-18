@@ -1,21 +1,35 @@
 <script setup lang="ts">
 import App from '@/pages/App.vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import { type NavItem } from '@/types';
 import { ShieldCheck, Users, Package, Tag, BarChart, BarChart3 } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
+import Pagination from '@/components/Pagination.vue';
 
 defineOptions({ layout: App })
 
-defineProps<{
+const props = defineProps<{
     users: {
-        id: number
-        nameCompleto: string
-        nomeUsuario: string
-        email: string
-        is_active: boolean
-        created_at: string
-    }[]
-}>()
+        data: any[];
+        links: any[];
+    };
+    filters: {
+        search: string;
+    };
+}>();
+
+const search = ref(props.filters.search);
+
+watch(search, (value) => {
+    router.get(
+        route('admin.users.index'),
+        { search: value },
+        {
+            preserveState: true,
+            replace: true,
+        }
+    );
+});
 
 const mainNavItems: NavItem[] = [
     {
@@ -69,6 +83,9 @@ const mainNavItems: NavItem[] = [
                     <p class="mt-2 text-base text-gray-700">Uma lista de todos os usuários, seus nomes e status.</p>
                 </div>
             </div>
+            <div class="mt-4">
+                <input v-model="search" type="text" placeholder="Buscar por nome de usuário..." class="form-control" />
+            </div>
             <div class="mt-8 flow-root">
                 <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -85,7 +102,7 @@ const mainNavItems: NavItem[] = [
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <tr v-for="user in users" :key="user.id">
+                                <tr v-for="user in users.data" :key="user.id">
                                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">{{ user.nameCompleto || user.nomeUsuario }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ user.email }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -107,6 +124,7 @@ const mainNavItems: NavItem[] = [
                                 </tr>
                             </tbody>
                         </table>
+                        <Pagination :links="users.links" class="mt-6" />
                     </div>
                 </div>
             </div>

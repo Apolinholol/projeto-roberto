@@ -11,23 +11,33 @@ use Illuminate\Support\Facades\Auth;
 
 class AdsController extends Controller
 {
-    public function index()
-{
-    return Inertia::render('Admin/Ads/Index', [
-        'ads' => Ad::with('category')->get()->map(function ($ad) {
-            return [
-                'id' => $ad->id,
-                'name' => $ad->name ?? 'Sem nome',
-                'price' => $ad->price ?? 0,
-                'stock' => $ad->stock ?? 0,
-                'cidade' => $ad->cidade ?? 'Sem cidade',
-                'uf' => $ad->uf ?? 'Sem UF',
-                'is_active' => (bool) $ad->is_active,
-                'category' => $ad->category ? [ 'name' => $ad->category->name ] : null
-            ];
-        }),
-    ]);
-}
+    public function index(Request $request)
+    {
+        $query = Ad::with('category');
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $ads = $query->paginate(10);
+
+        return Inertia::render('Admin/Ads/Index', [
+            'ads' => $ads->through(function ($ad) {
+                return [
+                    'id' => $ad->id,
+                    'name' => $ad->name ?? 'Sem nome',
+                    'price' => $ad->price ?? 0,
+                    'stock' => $ad->stock ?? 0,
+                    'cidade' => $ad->cidade ?? 'Sem cidade',
+                    'uf' => $ad->uf ?? 'Sem UF',
+                    'is_active' => (bool) $ad->is_active,
+                    'category' => $ad->category ? [ 'name' => $ad->category->name ] : null
+                ];
+            }),
+            'filters' => $request->only(['search']),
+        ]);
+    }
 
 
    public function create()

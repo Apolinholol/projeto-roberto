@@ -4,16 +4,26 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Ads;
+use App\Models\Ad;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Category::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $categories = $query->paginate(10);
+
         return Inertia::render('Admin/Category/Index', [
-            'categories' => Category::all()
+            'categories' => $categories,
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -55,7 +65,7 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        if (Ads::where('category_id', $category->id)->exists()) {
+        if (Ad::where('category_id', $category->id)->exists()) {
             return redirect()->route('admin.categories.index')
                 ->with('error', 'Não é possível excluir uma categoria que possui anúncios!');
         }
