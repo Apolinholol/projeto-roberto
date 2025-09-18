@@ -74,6 +74,21 @@ Route::get('/profile', function () {
     ]);
 })->middleware(['auth'])->name('profile');
 
+Route::get('/profile/{id}', function ($id) {
+    // dd($id);
+    $user = App\Models\User::findOrFail($id);
+
+    
+    $userAds = Ad::where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return Inertia::render('Profile', [
+        'anunciante' => $user,
+        'anuncios' => $userAds
+    ]);
+})->name('profile.show');
+
 Route::get('/AdsManager', function () {
     $categories = Category::all();
     return Inertia::render('AdsManager', [

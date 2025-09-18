@@ -8,7 +8,7 @@
 
                 <!-- Foto do usuário -->
                 <div class="user-info p-3 mb-3 mt-10 d-flex align-items-center" style="">
-                    <img :src="usuario?.image_path" alt="Foto do usuário" class="profile-picture">
+                    <img :src="state.usuario?.image_path" alt="Foto do usuário" class="profile-picture">
 
                     <!-- <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" fill="#01a656"
                         class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -39,7 +39,7 @@
                                     d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8.96q.04-.245.04-.5C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1 1 0 0 1 1 12z" />
                             </svg>
                             <p class="user-complete-name d-flex mb-0 ml-2 align-items-center">
-                                {{ usuario?.nomeCompleto || 'Nome não informado' }}
+                                {{ state.usuario?.nomeCompleto || 'Nome não informado' }}
                             </p>
                         </div>
 
@@ -51,7 +51,7 @@
                                     d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
                             </svg>
                             <p class="user-email d-flex mb-0 ml-2 align-items-center">
-                                {{ usuario?.email || 'Email não informado' }}
+                                {{ state.usuario?.email || 'Email não informado' }}
                             </p>
                         </div>
 
@@ -63,7 +63,7 @@
                                     d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z" />
                             </svg>
                             <p class="user-phone d-flex mb-0 ml-2 align-items-center">
-                                {{ usuario?.telefone || 'Telefone não informado' }}
+                                {{state.usuario?.telefone || 'Telefone não informado' }}
                             </p>
                         </div>
 
@@ -76,7 +76,7 @@
                                 <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
                             </svg>
                             <p class="user-city d-flex mb-0 ml-2 align-items-center">
-                               {{ usuario.uf }} - {{ usuario.cidade}}
+                               {{ state.usuario.uf }} - {{ state.usuario.cidade}}
                             </p>
                         </div>
 
@@ -208,15 +208,26 @@
 <script lang="ts" setup>
 import imgEntrada from '@images/VendIFF.png';
 import App from '@/pages/App.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, reactive } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 
 defineOptions({ layout: App });
 
 // Obter dados do usuário logado
 const page = usePage();
-const usuario = computed(() => page.props.auth?.user);
+const usuarioAuth = page.props.auth?.user ;
 
+const state = reactive({
+    usuario: {
+        id: 0,
+        nomeCompleto: '',
+        email: '',
+        telefone: '',
+        cidade: '',
+        uf: '',
+        image_path: ''
+    }
+});
 // Props vindas do backend
 const props = defineProps<{
     anuncios?: Array<{
@@ -229,7 +240,18 @@ const props = defineProps<{
         is_active: boolean;
         created_at: string;
     }>;
+    anunciante: any;
 }>();
+
+onMounted(() => {
+    // console.log(props.anunciante);
+
+    if(props.anunciante?.id > 0) {
+        state.usuario = props.anunciante;
+    }else{
+        state.usuario = usuarioAuth;
+    }
+}); 
 
 // Função para obter a primeira imagem do anúncio (reutilizada da Home)
 const getPrimeiraImagem = (ad: any) => {

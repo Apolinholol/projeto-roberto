@@ -114,7 +114,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row align-items-center">
-                            <div class="col-2">
+                            <div class="col-2" @click="$inertia.visit(`/profile/${ad.user?.id}`)" >
                                 <img v-if="ad.user?.image_path" :src="ad.user.image_path" alt="Foto do Anunciante" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;" @error="handleImageError">
                                 <i v-else class="bi bi-person-circle text-info" style="font-size: 3rem;"></i>
                             </div>
