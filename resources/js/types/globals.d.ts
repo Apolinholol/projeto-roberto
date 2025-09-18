@@ -30,9 +30,22 @@ export interface Anuncio {
     id: number;
     name: string;
     price: number;
-    cidade:string;
-    uf:string;
+    cidade: string;
+    uf: string;
     description?: string;
+    image_path?: string | string[];
+    categoria_id?: number;
+    category_id?: number;
+    category?: {
+        id: number;
+        name: string;
+    };
+    categoria?: {
+        id: number;
+        name: string;
+    };
+    category_name?: string;
+    categoria_name?: string;
 }
 
 export interface Categoria {

@@ -8,13 +8,8 @@
         <p>Inicie um chat para vê-lo aqui</p>
       </div>
       <ul v-else class="chat-list">
-        <li
-          v-for="chat in formattedChats"
-          :key="chat.id"
-          class="chat-list-item"
-          :class="{ active: selectedChat && selectedChat.id === chat.id }"
-          @click="selectChat(chat)"
-        >
+        <li v-for="chat in formattedChats" :key="chat.id" class="chat-list-item"
+          :class="{ active: selectedChat && selectedChat.id === chat.id }" @click="selectChat(chat)">
           <div class="chat-avatar">
             <img :src="chat.image_path" alt="Avatar" v-if="chat.image_path" class="avatar-image">
             <i class="bi bi-person-circle fs-3" v-else></i>
@@ -33,27 +28,18 @@
         </div>
         <div class="ad-button-container">
           <AdBanner v-if="selectedChat.ad" :ad="selectedChat.ad" class="mt-4" />
-          <button
-            @click="viewAd"
-            class="view-ad-button"
-          >
+          <button @click="viewAd" class="view-ad-button">
             Ver Anúncio
           </button>
           <button
             v-if="selectedChat && selectedChat.ad && user && selectedChat.ad.user_id === user.id && !selectedChat.finalizado"
-            @click="finalizeNegotiation"
-            class="negotiation-status-button finalize-button"
-          >
+            @click="finalizeNegotiation" class="negotiation-status-button finalize-button">
             Finalizar Negociação
           </button>
         </div>
         <div class="chat-messages-body">
-          <div
-            v-for="message in orderedMessages"
-            :key="message.id"
-            class="message"
-            :class="{ 'sent': message.user_id === user.id, 'received': message.user_id !== user.id, 'system-message': message.system_message }"
-          >
+          <div v-for="message in orderedMessages" :key="message.id" class="message"
+            :class="{ 'sent': message.user_id === user.id, 'received': message.user_id !== user.id, 'system-message': message.system_message }">
             <div class="message-content">
               <p>{{ message.content }}</p>
               <span class="message-time">{{ new Date(message.created_at).toLocaleTimeString() }}</span>
@@ -61,19 +47,33 @@
           </div>
         </div>
         <div class="chat-messages-footer">
-          <input type="text" placeholder="Digite sua mensagem..." v-model="messageInput" @keyup.enter="sendMessage" :disabled="selectedChat && selectedChat.finalizado" />
-          <button @click="sendMessage" :disabled="selectedChat && selectedChat.finalizado">Enviar</button>
+          <div v-if="selectedChat?.ad && (!selectedChat.ad?.is_active || selectedChat.ad?.deleted_at)" class="ad-disabled-warning">
+            <div class="alert alert-warning text-center mb-0">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>{{ selectedChat.ad?.deleted_at ? 'Anúncio Excluído' : 'Anúncio Desativado' }}</strong><br>
+              <small>{{ selectedChat.ad?.deleted_at ? 'Este anúncio foi excluído pelo vendedor.' : 'Este anúncio foi desativado pelo vendedor.' }} Não é possível enviar novas mensagens.</small>
+            </div>
+          </div>
+          <div v-else-if="selectedChat && selectedChat.finalizado" class="negotiation-finalized-warning">
+            <div class="alert alert-info text-center mb-0">
+              <i class="bi bi-check-circle me-2"></i>
+              <strong>Negociação Finalizada</strong><br>
+              <small>Esta negociação foi finalizada. Não é possível enviar novas mensagens.</small>
+            </div>
+          </div>
+          <div v-else class="message-input-area">
+            <input type="text" placeholder="Digite sua mensagem..." v-model="messageInput" @keyup.enter="sendMessage" />
+            <button @click="sendMessage">
+              Enviar
+            </button>
+          </div>
         </div>
       </div>
       <div v-else class="no-chat-selected">
         <p>Abra um chat para exibir aqui</p>
       </div>
     </div>
-    <FinalizationReasonModal
-      :show="showReasonModal"
-      @close="showReasonModal = false"
-      @confirm="confirmFinalization"
-    />
+    <FinalizationReasonModal :show="showReasonModal" @close="showReasonModal = false" @confirm="confirmFinalization" />
   </div>
 </template>
 
@@ -91,6 +91,7 @@ defineOptions({ layout: App });
 interface Participant {
   id: number;
   nomeCompleto: string;
+  image_path?: string;
 }
 
 interface Ad {
@@ -99,6 +100,8 @@ interface Ad {
   name: string;
   price: number;
   image_path: string;
+  is_active: boolean;
+  deleted_at?: string | null;
 }
 
 interface Chat {
@@ -109,6 +112,15 @@ interface Chat {
   seller: Participant;
   ad: Ad;
   finalizado: boolean;
+}
+
+interface FormattedChat {
+  id: number;
+  name: string;
+  lastMessage: string;
+  ad: Ad;
+  finalizado: boolean;
+  image_path?: string;
 }
 
 interface Message {
@@ -125,7 +137,7 @@ interface Message {
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 
-const props = withDefaults(defineProps<{ 
+const props = withDefaults(defineProps<{
   chats?: Chat[];
   systemMessage?: Message;
 }>(), {
@@ -147,7 +159,7 @@ const formattedChats = computed(() => {
   });
 });
 
-const selectedChat = ref(null);
+const selectedChat = ref<FormattedChat | null>(null);
 const messageInput = ref('');
 const messages = ref<Message[]>([]);
 const showReasonModal = ref(false);
@@ -245,6 +257,12 @@ const sendMessage = async () => {
     return;
   }
 
+  // Verificar se o anúncio está ativo
+  if (selectedChat.value.ad && !selectedChat.value.ad.is_active) {
+    (window as any).showToast?.('Não é possível enviar mensagens. O anúncio foi desativado.', 'error');
+    return;
+  }
+
   try {
     const response = await axios.post(route('chat.message.store'), {
       chat_id: selectedChat.value.id,
@@ -261,19 +279,27 @@ const sendMessage = async () => {
   }
 };
 
-const selectChat = (chat) => {
-  const fullChatData = props.chats.find(c => c.id === chat.id);
-  selectedChat.value = fullChatData;
+const selectChat = (chat: FormattedChat) => {
+  selectedChat.value = chat;
 };
 
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const chatId = urlParams.get('chat_id');
 
-  if (chatId && props.chats) {
+  if (chatId && props.chats && user.value) {
     const chatToSelect = props.chats.find(chat => chat.id === parseInt(chatId, 10));
     if (chatToSelect) {
-      selectedChat.value = chatToSelect;
+      const otherParticipant = chatToSelect.id_comprador === user.value.id ? chatToSelect.seller : chatToSelect.buyer;
+      const formattedChat: FormattedChat = {
+        id: chatToSelect.id,
+        name: otherParticipant?.nomeCompleto || 'Chat',
+        lastMessage: '',
+        ad: chatToSelect.ad,
+        finalizado: chatToSelect.finalizado,
+        image_path: otherParticipant?.image_path,
+      };
+      selectedChat.value = formattedChat;
       // The watch handler will take care of fetching and starting polling
     }
   }
@@ -332,7 +358,8 @@ const confirmFinalization = async (reason: string) => {
 
 .chat-container {
   display: flex;
-  height: calc(100vh - 118px); /* Adjust based on Navbar and Footer height */
+  height: calc(100vh - 118px);
+  /* Adjust based on Navbar and Footer height */
   background-color: #cff8e4;
 }
 
@@ -442,7 +469,8 @@ const confirmFinalization = async (reason: string) => {
   padding: 1rem;
   overflow-y: auto;
   display: flex;
-  flex-direction: column-reverse; /* Changed from column */
+  flex-direction: column-reverse;
+  /* Changed from column */
   /* Removed: justify-content: flex-end; */
   min-height: 0;
   height: 0;
@@ -452,7 +480,15 @@ const confirmFinalization = async (reason: string) => {
   display: flex;
   padding: 1rem;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
-  gap: 10px; /* Space between input and button */
+  gap: 10px;
+  /* Space between input and button */
+  min-height: 80px;
+}
+
+.chat-messages-footer:has(.ad-disabled-warning),
+.chat-messages-footer:has(.negotiation-finalized-warning) {
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-messages-footer input {
@@ -465,7 +501,8 @@ const confirmFinalization = async (reason: string) => {
 
 .chat-messages-footer button {
   padding: 0.75rem 1.5rem;
-  background-color: #4CAF50; /* Green */
+  background-color: #4CAF50;
+  /* Green */
   color: white;
   border: none;
   border-radius: 20px;
@@ -499,12 +536,14 @@ const confirmFinalization = async (reason: string) => {
 }
 
 .message.sent .message-content {
-  background-color: #dcf8c6; /* Light green for sent messages */
+  background-color: #dcf8c6;
+  /* Light green for sent messages */
   color: #333;
 }
 
 .message.received .message-content {
-  background-color: #e0e0e0; /* Light gray for received messages */
+  background-color: #e0e0e0;
+  /* Light gray for received messages */
   color: #333;
 }
 
@@ -513,11 +552,13 @@ const confirmFinalization = async (reason: string) => {
   color: #777;
   margin-top: 0.2rem;
   display: block;
-  text-align: right; /* Align time to the right for sent messages */
+  text-align: right;
+  /* Align time to the right for sent messages */
 }
 
 .message.received .message-time {
-  text-align: left; /* Align time to the left for received messages */
+  text-align: left;
+  /* Align time to the left for received messages */
 }
 
 .system-message {
@@ -526,34 +567,45 @@ const confirmFinalization = async (reason: string) => {
 }
 
 .system-message .message-content {
-  background-color: #cff8e4 !important; /* Forçar a cor de fundo */
+  background-color: #cff8e4 !important;
+  /* Forçar a cor de fundo */
   font-size: 0.7rem;
   text-align: center;
   margin: 0 auto;
-  border-radius: 15px; /* Rounded borders for system messages */
-  padding: 0.75rem 1rem; /* Adjust padding for vertical centering */
-  display: flex; /* Use flexbox for vertical centering */
-  align-items: center; /* Vertically center content */
-  justify-content: center; /* Horizontally center content */
-  min-height: 40px; /* Ensure a minimum height for centering */
+  border-radius: 15px;
+  /* Rounded borders for system messages */
+  padding: 0.75rem 1rem;
+  /* Adjust padding for vertical centering */
+  display: flex;
+  /* Use flexbox for vertical centering */
+  align-items: center;
+  /* Vertically center content */
+  justify-content: center;
+  /* Horizontally center content */
+  min-height: 40px;
+  /* Ensure a minimum height for centering */
 }
 
 .system-message .message-time {
   display: none;
 }
+
 .negotiation-status-button {
-  width: 100%; /* Make it horizontal and same width as ad banner */
+  width: 100%;
+  /* Make it horizontal and same width as ad banner */
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
-  margin-top: 1rem; /* Space below ad banner */
+  margin-top: 1rem;
+  /* Space below ad banner */
   transition: background-color 0.3s ease;
 }
 
 .finalize-button {
-  background-color: #dc3545; /* Red color for finalize */
+  background-color: #dc3545;
+  /* Red color for finalize */
   color: white;
 }
 
@@ -562,13 +614,15 @@ const confirmFinalization = async (reason: string) => {
 }
 
 .reactivate-button {
-  background-color: #28a745; /* Green color for reactivate */
+  background-color: #28a745;
+  /* Green color for reactivate */
   color: white;
 }
 
 .reactivate-button:hover {
   background-color: #218838;
 }
+
 .chat-messages-header {
   padding: 1.25rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -576,16 +630,21 @@ const confirmFinalization = async (reason: string) => {
 
 .ad-button-container {
   display: flex;
-  flex-direction: row; /* Changed from column */
-  align-items: center; /* Changed from stretch */
+  flex-direction: row;
+  /* Changed from column */
+  align-items: center;
+  /* Changed from stretch */
   width: 100%;
   padding: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.ad-button-container > .mt-4 { /* Targeting AdBanner with its class */
-  flex-grow: 1; /* Make AdBanner take remaining space */
-  margin-top: 0; /* Remove previous margin if any */
+.ad-button-container>.mt-4 {
+  /* Targeting AdBanner with its class */
+  flex-grow: 1;
+  /* Make AdBanner take remaining space */
+  margin-top: 0;
+  /* Remove previous margin if any */
 }
 
 .view-ad-button {
@@ -596,7 +655,8 @@ const confirmFinalization = async (reason: string) => {
   cursor: pointer;
   font-size: 1rem;
   margin-left: 10px;
-  background-color: #007bff; /* Blue color for view ad */
+  background-color: #007bff;
+  /* Blue color for view ad */
   color: white;
   transition: background-color 0.3s ease;
 }
@@ -606,9 +666,83 @@ const confirmFinalization = async (reason: string) => {
 }
 
 .negotiation-status-button {
-  width: 20%; /* Changed from 30% */
-  margin: 0; /* Removed margin: 0 auto; */
-  margin-left: 10px; /* Add some space between ad and button */
+  width: 20%;
+  /* Changed from 30% */
+  margin: 0;
+  /* Removed margin: 0 auto; */
+  margin-left: 10px;
+  /* Add some space between ad and button */
+}
+
+.ad-disabled-warning {
+  margin-bottom: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ad-disabled-warning .alert {
+  border: 1px solid #f0ad4e;
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+  margin: 0;
+  max-width: 400px;
+  width: auto;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.negotiation-finalized-warning {
+  margin-bottom: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.negotiation-finalized-warning .alert {
+  border: 1px solid #5bc0de;
+  background-color: #d9edf7;
+  color: #31708f;
+  margin: 0;
+  max-width: 400px;
+  width: auto;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.message-input-area {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.message-input-area input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+}
+
+.message-input-area input:focus {
+  border-color: #007bff;
+}
+
+.message-input-area button {
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.message-input-area button:hover {
+  background-color: #0056b3;
 }
 
 .chat-messages-footer input:disabled,

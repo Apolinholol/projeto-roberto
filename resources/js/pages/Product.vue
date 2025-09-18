@@ -114,7 +114,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row align-items-center">
-                            <div class="col-2" @click="$inertia.visit(`/profile/${ad.user?.id}`)" >
+                            <div class="col-2">
                                 <img v-if="ad.user?.image_path" :src="ad.user.image_path" alt="Foto do Anunciante" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;" @error="handleImageError">
                                 <i v-else class="bi bi-person-circle text-info" style="font-size: 3rem;"></i>
                             </div>
@@ -134,6 +134,16 @@
                                 </small>
                             </div>
                         </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button 
+                                    @click="verPerfilUsuario" 
+                                    class="btn btn-outline-info w-100">
+                                    <i class="bi bi-person-lines-fill me-2"></i>
+                                    Ver Perfil do Usuário
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -142,13 +152,15 @@
                     <div class="card-body text-center">
                         <button 
                             @click="iniciarChat" 
-                            class="btn btn-success btn-lg w-100"
+                            class="btn btn-lg w-100"
+                            :class="ad.is_active ? 'btn-success' : 'btn-secondary'"
+                            :disabled="!ad.is_active"
                             style="border-radius: 30px;">
                             <i class="bi bi-chat-dots me-2"></i>
-                            Conversar com o Anunciante
+                            {{ ad.is_active ? 'Conversar com o Anunciante' : 'Anúncio Desativado' }}
                         </button>
                         <small class="text-muted d-block mt-2">
-                            Tire suas dúvidas e negocie diretamente com o vendedor
+                            {{ ad.is_active ? 'Tire suas dúvidas e negocie diretamente com o vendedor' : 'Este anúncio foi desativado pelo vendedor' }}
                         </small>
                     </div>
                 </div>
@@ -306,6 +318,12 @@ const formatDate = (dateString: string) => {
 
 // Função para iniciar chat
 const iniciarChat = async () => {
+    // Verificar se o anúncio está ativo
+    if (!props.ad.is_active) {
+        (window as any).showToast?.('Este anúncio foi desativado pelo vendedor.', 'error');
+        return;
+    }
+    
     // Verificar se usuário está logado
     if (!props.ad.user?.id) {
         (window as any).showToast?.('Dados do anunciante não encontrados.', 'error');
@@ -338,6 +356,15 @@ try {
         else {
             (window as any).showToast?.('Erro ao iniciar conversa. Tente novamente.', 'error');
         }
+    }
+};
+
+// Função para ver perfil do usuário
+const verPerfilUsuario = () => {
+    if (props.ad.user?.id) {
+        router.visit(`/profile/${props.ad.user.id}`);
+    } else {
+        (window as any).showToast?.('Dados do usuário não encontrados.', 'error');
     }
 };
 

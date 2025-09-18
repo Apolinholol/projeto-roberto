@@ -79,8 +79,8 @@
 @layer utilities {
     body,
     html {
-        --font-sans:
-            'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        --font-heading: 'Questrial', ui-sans-serif, system-ui, sans-serif;
     }
 }
 
@@ -170,4 +170,56 @@
   font-family: "Questrial", sans-serif;
   font-weight: 400;
   font-style: normal;
+}
+
+/* Aplicação global das fontes */
+@layer base {
+    /* Fonte padrão para texto */
+    body, p, span, div, li, td, th, input, textarea, select, button, label, small, a, 
+    .form-control, .btn, .dropdown-item, .nav-link, .card-text, .text-muted, 
+    .alert, .badge, .breadcrumb, .pagination, .toast, .tooltip, .popover,
+    .modal-body, .form-label, .form-text, .input-group-text {
+        font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif !important;
+    }
+    
+    /* Fonte para títulos */
+    h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+    .card-title, .modal-title, .navbar-brand, .btn-lg, 
+    .display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
+    .card-header, .modal-header, .offcanvas-title, .toast-header,
+    .accordion-header, .nav-title, .section-title {
+        font-family: 'Questrial', ui-sans-serif, system-ui, sans-serif !important;
+    }
+    
+    /* Títulos específicos do Bootstrap */
+    .card-header h1, .card-header h2, .card-header h3, 
+    .card-header h4, .card-header h5, .card-header h6,
+    .alert h1, .alert h2, .alert h3, .alert h4, .alert h5, .alert h6,
+    .modal-header h1, .modal-header h2, .modal-header h3,
+    .modal-header h4, .modal-header h5, .modal-header h6 {
+        font-family: 'Questrial', ui-sans-serif, system-ui, sans-serif !important;
+    }
+    
+    /* Elementos específicos do Vue/componentes */
+    .font-semibold, .font-medium, .font-bold {
+        font-family: 'Questrial', ui-sans-serif, system-ui, sans-serif !important;
+    }
+    
+    /* Classes customizadas para forçar as fontes onde necessário */
+    .questrial-font {
+        font-family: 'Questrial', ui-sans-serif, system-ui, sans-serif !important;
+    }
+    
+    .poppins-font {
+        font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif !important;
+    }
+}
+
+/* Classes utilitárias para aplicação específica */
+.title-font {
+    font-family: 'Questrial', ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.text-font {
+    font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif !important;
 }

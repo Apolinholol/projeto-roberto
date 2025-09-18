@@ -119,6 +119,13 @@ class AdsController extends Controller
         // Buscar anúncio do usuário logado
         $ad = Ad::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         
+        // Verificar se o anúncio está ativo
+        if (!$ad->is_active) {
+            return back()->withErrors([
+                'anuncio_status' => 'Só é possível editar anúncios ativos. Este anúncio está desativado.'
+            ]);
+        }
+        
         // Validação similar ao store
         $request->validate([
             'titulo' => 'required|string|max:255',
@@ -154,25 +161,22 @@ class AdsController extends Controller
             ]);
         }
         
-        // Upload das novas fotos se houver
+        // Gerenciar fotos
         $imagePaths = [];
-        if ($request->hasFile('fotos')) {
-            // Manter fotos existentes se não enviou novas
-            $existingImages = is_string($ad->image_path) ? json_decode($ad->image_path, true) : $ad->image_path;
-            if (is_array($existingImages)) {
-                $imagePaths = $existingImages;
+        
+        // Se há fotos existentes (passadas do frontend)
+        if ($request->has('fotos_existentes')) {
+            $fotosExistentes = json_decode($request->fotos_existentes, true);
+            if (is_array($fotosExistentes)) {
+                $imagePaths = $fotosExistentes;
             }
-            
-            // Adicionar novas fotos
+        }
+        
+        // Adicionar novas fotos
+        if ($request->hasFile('fotos')) {
             foreach ($request->file('fotos') as $foto) {
                 $path = $foto->store('ads', 'public');
                 $imagePaths[] = $path;
-            }
-        } else {
-            // Manter fotos existentes
-            $imagePaths = is_string($ad->image_path) ? json_decode($ad->image_path, true) : $ad->image_path;
-            if (!is_array($imagePaths)) {
-                $imagePaths = [];
             }
         }
 

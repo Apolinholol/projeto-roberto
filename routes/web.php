@@ -99,6 +99,12 @@ Route::get('/AdsManager', function () {
 // Rota para editar anúncio específico
 Route::get('/AdsManager/edit/{id}', function ($id) {
     $ad = Ad::with('category')->where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+    
+    // Verificar se o anúncio está ativo
+    if (!$ad->is_active) {
+        return redirect()->route('profile')->with('error', 'Só é possível editar anúncios ativos. Este anúncio está desativado.');
+    }
+    
     $categories = Category::all();
     
     return Inertia::render('AdsManager', [
@@ -110,7 +116,7 @@ Route::get('/AdsManager/edit/{id}', function ($id) {
             'preco' => $ad->price,
             'estoque' => $ad->stock,
             'categoria_id' => $ad->category_id,
-            'fotos' => is_string($ad->image_path) ? json_decode($ad->image_path, true) ?? [] : ($ad->image_path ?? [])
+            'fotos' => is_string($ad->image_path) ? (json_decode($ad->image_path, true) ?: []) : (is_array($ad->image_path) ? $ad->image_path : [])
         ]
     ]);
 })->middleware(['auth'])->name('AdsManager.edit');
@@ -210,6 +216,54 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/dashboard', [HubController::class, 'index'])
     ->middleware(['auth', 'verified', 'admin'])
     ->name('dashboard');
+
+# Update profile route
+Route::put('/profile/update', function (Request $request) {
+    $user = Auth::user();
+    
+    $request->validate([
+        'nomeCompleto' => 'required|string|max:255',
+        'nomeUsuario' => 'required|string|max:255|unique:users,nomeUsuario,' . $user->id,
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'cpf' => 'nullable|string|max:14',
+        'telefone' => 'nullable|string|max:20',
+        'cidade' => 'required|string|max:255',
+        'uf' => 'required|string|max:2',
+        'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+    ], [
+        'nomeCompleto.required' => 'O nome completo é obrigatório.',
+        'nomeUsuario.required' => 'O nome de usuário é obrigatório.',
+        'nomeUsuario.unique' => 'Este nome de usuário já está em uso.',
+        'email.required' => 'O email é obrigatório.',
+        'email.email' => 'Email inválido.',
+        'email.unique' => 'Este email já está em uso.',
+        'cidade.required' => 'A cidade é obrigatória.',
+        'uf.required' => 'O estado é obrigatório.',
+        'image_path.image' => 'O arquivo deve ser uma imagem.',
+        'image_path.mimes' => 'A imagem deve ser do tipo: jpeg, png, jpg, gif ou webp.',
+        'image_path.max' => 'A imagem deve ter no máximo 2MB.',
+    ]);
+    
+    $updateData = [
+        'nomeCompleto' => $request->nomeCompleto,
+        'nomeUsuario' => $request->nomeUsuario,
+        'email' => $request->email,
+        'cpf' => $request->cpf,
+        'telefone' => $request->telefone,
+        'cidade' => $request->cidade,
+        'uf' => $request->uf,
+    ];
+    
+    // Upload da nova foto se fornecida
+    if ($request->hasFile('image_path')) {
+        $path = $request->file('image_path')->store('profile', 'public');
+        $updateData['image_path'] = '/storage/' . $path;
+    }
+    
+    $user->update($updateData);
+    
+    return redirect()->route('profile')->with('success', 'Perfil atualizado com sucesso!');
+})->middleware(['auth'])->name('profile.update');
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/hub', [HubController::class, 'index'])->name('hub');

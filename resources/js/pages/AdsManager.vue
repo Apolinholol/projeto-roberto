@@ -21,6 +21,12 @@
                             </small>
                         </div>
                         
+                        <!-- Alerta para anúncio inativo -->
+                        <div v-if="errors.anuncio_status" class="alert alert-danger mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Erro!</strong> {{ errors.anuncio_status }}
+                        </div>
+                        
                         <form @submit.prevent="salvarAnuncio">
                             <!-- Título do Anúncio -->
                             <div class="mb-3">
@@ -245,7 +251,7 @@ const props = defineProps<{
 
 // Estados reativos
 const salvando = ref(false);
-const previewFotos = ref<Array<{url: string, name: string, file: File}>>([]);
+const previewFotos = ref<Array<{url: string, name: string, file?: File, isExisting?: boolean}>>([]);
 const mostrarModalCategoria = ref(false);
 
 // Formulário principal
@@ -330,8 +336,17 @@ const handleFileUpload = (event: Event) => {
 
 // Função para remover uma foto específica
 const removerFoto = (index: number) => {
+    const foto = previewFotos.value[index];
+    
+    // Se não for uma foto existente, remover do form.fotos também
+    if (!foto.isExisting) {
+        const fileIndex = form.fotos.findIndex(file => file.name === foto.name);
+        if (fileIndex !== -1) {
+            form.fotos.splice(fileIndex, 1);
+        }
+    }
+    
     previewFotos.value.splice(index, 1);
-    form.fotos.splice(index, 1);
 };
 
 // Função para remover todas as fotos
@@ -398,11 +413,13 @@ const validarFormulario = () => {
         novosErros.estoque = 'O estoque deve ser pelo menos 1.';
     }
     
-    if (form.fotos.length === 0) {
+    // Validar fotos (considerar tanto novas quanto existentes)
+    const totalFotos = previewFotos.value.length;
+    if (totalFotos === 0) {
         novosErros.fotos = 'Pelo menos uma foto do produto é obrigatória.';
     }
     
-    if (form.fotos.length > 10) {
+    if (totalFotos > 10) {
         novosErros.fotos = 'Máximo de 10 fotos permitidas.';
     }
     
@@ -432,7 +449,16 @@ const salvarAnuncio = async () => {
             formData.append(`fotos[${index}]`, foto);
         });
         
-        console.log('Enviando formulário com', form.fotos.length, 'fotos');
+        // Se estiver editando, enviar informações sobre fotos existentes
+        if (props.adToEdit) {
+            const fotosExistentes = previewFotos.value
+                .filter(foto => foto.isExisting)
+                .map(foto => foto.url.replace('/storage/', ''));
+            
+            formData.append('fotos_existentes', JSON.stringify(fotosExistentes));
+        }
+        
+        console.log('Enviando formulário com', form.fotos.length, 'fotos novas');
         
         // Verificar se está editando ou criando
         if (props.adToEdit) {
@@ -490,8 +516,25 @@ const limparFormulario = () => {
     }
 };
 
+// Função para carregar fotos existentes no modo de edição
+const carregarFotosExistentes = () => {
+    if (props.adToEdit?.fotos && Array.isArray(props.adToEdit.fotos)) {
+        props.adToEdit.fotos.forEach((fotoPath, index) => {
+            previewFotos.value.push({
+                url: `/storage/${fotoPath}`,
+                name: `Foto ${index + 1}`,
+                isExisting: true
+            });
+        });
+    }
+};
+
 // Carregar categorias ao montar o componente
 onMounted(() => {
+    // Carregar fotos existentes se estiver editando
+    if (props.adToEdit) {
+        carregarFotosExistentes();
+    }
     // Aqui você pode fazer uma requisição para buscar categorias do backend
     // if (!props.categorias) {
     //     buscarCategorias();
